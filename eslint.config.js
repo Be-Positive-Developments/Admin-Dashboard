@@ -1,25 +1,28 @@
 // @ts-nocheck
 import js from "@eslint/js";
 import globals from "globals";
+import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import filenames from "eslint-plugin-filenames";
-import { defineConfig, globalIgnores } from "eslint/config";
-export default defineConfig([
-  globalIgnores(["dist"]),
+import prettier from "eslint-plugin-prettier";
+
+export default [
+  {
+    ignores: ["dist"],
+  },
+  js.configs.recommended,
   {
     files: ["**/*.{js,jsx}"],
-    extends: [
-      js.configs.recommended,
-      reactHooks.configs["recommended-latest"],
-      reactRefresh.configs.vite,
-      "plugin:prettier/recommended",
-    ],
     plugins: {
+      react,
+      "react-hooks": reactHooks,
+      "react-refresh": reactRefresh,
       filenames,
+      prettier,
     },
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: "latest",
       globals: globals.browser,
       parserOptions: {
         ecmaVersion: "latest",
@@ -28,10 +31,13 @@ export default defineConfig([
       },
     },
     rules: {
+      ...react.configs.recommended.rules,
+      ...reactHooks.configs.recommended.rules,
+      "react/react-in-jsx-scope": "off",
+      "react/jsx-uses-react": "off",
       "no-unused-vars": ["error", { varsIgnorePattern: "^[A-Z_]" }],
       "react/jsx-pascal-case": ["error", { allowAllCaps: true }],
       camelcase: ["error", { properties: "always" }],
-      "filenames/match-regex": ["error", "^[a-z0-9-]+$", true],
       "react/prefer-stateless-function": [
         "error",
         { ignorePureComponents: true },
@@ -39,14 +45,24 @@ export default defineConfig([
       "react/no-deprecated": "error",
       "react/no-unsafe": "error",
       "prettier/prettier": "error",
-      "no-restricted-props": [
+      "no-console": "error",
+      "no-restricted-syntax": [
         "error",
         {
-          propName: "style",
+          selector: "JSXAttribute[name.name='style']",
           message:
             "Avoid inline styles. Use CSS modules, Tailwind, or styled-components instead.",
         },
       ],
+      "react-refresh/only-export-components": [
+        "warn",
+        { allowConstantExport: true },
+      ],
+    },
+    settings: {
+      react: {
+        version: "detect",
+      },
     },
   },
-]);
+];
