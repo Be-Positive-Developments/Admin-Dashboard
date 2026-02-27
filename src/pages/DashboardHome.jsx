@@ -85,8 +85,8 @@ export default function DashboardHome() {
       {/* Welcome Section */}
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t('dashboard_overview', 'Dashboard Overview')}</h1>
-          <p className="text-gray-500 mt-1">{t('welcome_admin', "Welcome back, Admin. Here's what's happening today.")}</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{t('dashboard_overview', 'Dashboard Overview')}</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">{t('welcome_admin', "Welcome back, Admin. Here's what's happening today.")}</p>
         </div>
         <button className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
           {t('generate_report', 'Generate Report')}
@@ -101,20 +101,20 @@ export default function DashboardHome() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}
-          className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+          className="bg-white dark:bg-[#171921] p-6 rounded-xl border border-gray-100 dark:border-[#262833] shadow-sm hover:shadow-md transition-shadow">
           
             <div className="flex items-center justify-between">
               <div className={`p-3 rounded-lg ${stat.color}`}>
                 <stat.icon className="h-6 w-6" />
               </div>
-              <div className={`flex items-center text-xs font-semibold ${stat.trend === 'up' ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'} px-2 py-1 rounded-full`}>
+              <div className={`flex items-center text-xs font-semibold ${stat.trend === 'up' ? 'text-green-600 bg-green-50 dark:bg-green-950 dark:text-green-400' : 'text-red-600 bg-red-50 dark:bg-red-950 dark:text-red-400'} px-2 py-1 rounded-full`}>
                 {stat.trend === 'up' ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownRight className="h-3 w-3 mr-1" />}
                 {stat.change}
               </div>
             </div>
             <div className="mt-4">
-              <h3 className="text-sm font-medium text-gray-500">{stat.title}</h3>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.title}</h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stat.value}</p>
             </div>
           </motion.div>
         )}
@@ -123,8 +123,8 @@ export default function DashboardHome() {
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Chart */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900 mb-6">{t('donation_case_trends', 'Donation & Case Trends')}</h3>
+        <div className="lg:col-span-2 bg-white dark:bg-[#171921] p-6 rounded-xl border border-gray-100 dark:border-[#262833] shadow-sm">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6">{t('donation_case_trends', 'Donation & Case Trends')}</h3>
           <div className="h-80 w-full" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data}>
@@ -148,25 +148,25 @@ export default function DashboardHome() {
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900 mb-6">{t('recent_activity', 'Recent Activity')}</h3>
+        <div className="bg-white dark:bg-[#171921] p-6 rounded-xl border border-gray-100 dark:border-[#262833] shadow-sm">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6">{t('recent_activity', 'Recent Activity')}</h3>
           <div className="space-y-6">
             {recentActivity.map((activity, index) =>
             <div key={activity.id} className="flex items-start gap-4">
-                <div className="h-2 w-2 mt-2 rounded-full bg-red-500 shrink-0 ring-4 ring-red-50"></div>
+                <div className="h-2 w-2 mt-2 rounded-full bg-red-500 shrink-0 ring-4 ring-red-50 dark:ring-red-950"></div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{activity.user}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{activity.action}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{activity.user}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{activity.action}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-gray-400">{activity.time}</span>
-                    {activity.amount && <span className="text-xs font-semibold text-green-600 bg-green-50 px-1.5 py-0.5 rounded">{activity.amount}</span>}
-                    {activity.status && <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">{activity.status}</span>}
+                    <span className="text-xs text-gray-400 dark:text-gray-500">{activity.time}</span>
+                    {activity.amount && <span className="text-xs font-semibold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950 px-1.5 py-0.5 rounded">{activity.amount}</span>}
+                    {activity.status && <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 px-1.5 py-0.5 rounded">{activity.status}</span>}
                   </div>
                 </div>
               </div>
             )}
           </div>
-          <button className="w-full mt-6 py-2 text-sm text-red-700 font-medium hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100">
+          <button className="w-full mt-6 py-2 text-sm text-red-700 dark:text-red-400 font-medium hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors border border-transparent hover:border-red-100 dark:hover:border-red-900">
             {t('view_all_activity', 'View All Activity')}
           </button>
         </div>

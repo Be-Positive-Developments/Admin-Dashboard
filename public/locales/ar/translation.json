@@ -174,5 +174,10 @@
     "new_users":  "مستخدمون جدد",
     "page_not_found":  "الصفحة غير موجودة",
     "page_not_found_desc":  "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
-    "go_back_home":  "العودة للرئيسية"
+    "go_back_home":  "العودة للرئيسية",
+    "toggle_theme":  "تبديل المظهر",
+    "theme_light":  "فاتح",
+    "theme_dark":  "داكن",
+    "theme_system":  "تلقائي",
+    "appearance":  "المظهر"
 }
