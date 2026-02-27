@@ -63,6 +63,7 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
             <img src={logo} alt="Be Positive Logo" className="h-full w-full object-contain" />
           </div>
           <motion.span
+            initial={false}
             animate={{ opacity: isOpen ? 1 : 0, display: isOpen ? "block" : "none" }}
             className="font-bold text-xl text-gray-900 dark:text-gray-100 tracking-tight">
             
@@ -98,6 +99,7 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
               }
               <item.icon size={22} className={cn("flex-shrink-0", isActive && "text-[#bf0d0d]")} />
               <motion.span
+                initial={false}
                 animate={{ opacity: isOpen ? 1 : 0, display: isOpen ? "block" : "none" }}
                 className="font-medium whitespace-nowrap">
                 
@@ -124,6 +126,7 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
         )}>
           <LogOut size={22} className="flex-shrink-0" />
           <motion.span
+            initial={false}
             animate={{ opacity: isOpen ? 1 : 0, display: isOpen ? "block" : "none" }}
             className="font-medium whitespace-nowrap">
             
@@ -183,7 +186,11 @@ const TopNav = ({ toggleSidebar }) => {
 
 // Main Layout
 export default function DashboardLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) return false;
+    const saved = localStorage.getItem('sidebar_open');
+    return saved !== null ? saved === 'true' : true;
+  });
   const [isMobile, setIsMobile] = useState(false);
   const { i18n } = useTranslation();
   const isRtl = i18n.dir() === 'rtl';
@@ -196,7 +203,8 @@ export default function DashboardLayout() {
         setSidebarOpen(false);
       } else {
         setIsMobile(false);
-        setSidebarOpen(true);
+        const saved = localStorage.getItem('sidebar_open');
+        setSidebarOpen(saved !== null ? saved === 'true' : true);
       }
     };
 
@@ -209,7 +217,13 @@ export default function DashboardLayout() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  const toggleSidebar = () => {
+    setSidebarOpen((prev) => {
+      const next = !prev;
+      localStorage.setItem('sidebar_open', String(next));
+      return next;
+    });
+  };
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-[#0f1117] font-sans text-gray-900 dark:text-gray-100 overflow-hidden" dir={isRtl ? 'rtl' : 'ltr'}>
