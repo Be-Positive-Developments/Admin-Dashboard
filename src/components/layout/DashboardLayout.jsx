@@ -49,16 +49,17 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
         width: isOpen ? 256 : isMobile ? 0 : 80,
         x: isMobile && !isOpen ? (isRtl ? 256 : -256) : 0
       }}
+      transition={{ duration: 0.3, ease: 'easeInOut' }}
       className={cn(
-        "fixed start-0 top-0 z-40 h-screen bg-white shadow-xl overflow-hidden border-e border-gray-100 flex flex-col transition-all",
+        "fixed start-0 top-0 z-40 h-screen bg-white shadow-xl overflow-hidden border-e border-gray-100 flex flex-col",
         isMobile ? "absolute" : "relative"
       )}>
       
       <div className="flex items-center h-16 px-6 border-b border-gray-100 justify-between">
-        <div className="flex items-center gap-3 overflow-hidden whitespace-nowrap">
+        <Link to="/" className="flex items-center gap-3 overflow-hidden whitespace-nowrap">
            {/* Logo Icon */}
-          <div className="min-w-8 min-h-8 flex items-center justify-center">
-            <img src={logo} alt="Be Positive Logo" className="h-8 w-8 object-contain" />
+          <div className="min-w-10 min-h-10 flex items-center justify-center">
+            <img src={logo} alt="Be Positive Logo" className="h-10 w-10 object-contain" />
           </div>
           <motion.span
             animate={{ opacity: isOpen ? 1 : 0, display: isOpen ? "block" : "none" }}
@@ -66,7 +67,7 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
             
             Be <span className="text-[#bf0d0d]">Positive</span>
           </motion.span>
-        </div>
+        </Link>
         {!isMobile && isOpen &&
         <button onClick={toggleSidebar} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">
             <ChevronLeft size={20} className={cn("transform transition-transform", isRtl && "rotate-180")} />

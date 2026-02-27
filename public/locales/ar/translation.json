@@ -24,6 +24,7 @@
     "active_cases":  "الحالات النشطة",
     "new_reports":  "تقارير جديدة",
     "total_donations":  "إجمالي التبرعات",
+    "delete_user":  "حذف المستخدم",
     "delete_user_confirm":  "هل أنت متأكد أنك تريد حذف هذا المستخدم؟",
     "user_deleted":  "تم حذف المستخدم بنجاح",
     "add_new_user":  "إضافة مستخدم جديد",
