@@ -14,6 +14,16 @@ import {
 'lucide-react';
 import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'motion/react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 // Mock Data
 const initialUsers = [
@@ -36,6 +46,7 @@ export default function UsersPage() {
   const [roleFilter, setRoleFilter] = useState('All');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [deleteUserId, setDeleteUserId] = useState(null);
   
   const isRtl = i18n.dir() === 'rtl';
 
@@ -47,10 +58,13 @@ export default function UsersPage() {
   });
 
   const handleDelete = (id) => {
-    if (confirm(t('delete_user_confirm', 'Are you sure you want to delete this user?'))) {
-      setUsers(users.filter((u) => u.id !== id));
-      toast.success(t('user_deleted', 'User deleted successfully'));
-    }
+    setDeleteUserId(id);
+  };
+
+  const confirmDelete = () => {
+    setUsers(users.filter((u) => u.id !== deleteUserId));
+    toast.success(t('user_deleted', 'User deleted successfully'));
+    setDeleteUserId(null);
   };
 
   const handleEdit = (user) => {
@@ -199,7 +213,8 @@ export default function UsersPage() {
                         </button>
                         <button
                       onClick={() => handleDelete(user.id)}
-                      className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
+                      className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                      aria-label={t('delete', 'Delete')}>
                       
                           <Trash2 size={16} />
                         </button>
@@ -314,6 +329,27 @@ export default function UsersPage() {
           </div>
         }
       </AnimatePresence>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteUserId !== null} onOpenChange={(open) => !open && setDeleteUserId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('delete_user', 'Delete User')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('delete_user_confirm', 'Are you sure you want to delete this user?')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('cancel', 'Cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-700 text-white hover:bg-red-800"
+            >
+              {t('delete', 'Delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>);
 
 }
