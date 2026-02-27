@@ -102,8 +102,8 @@ export default function UsersPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('manage_users', 'Users Management')}</h1>
-          <p className="text-gray-500 text-sm mt-1">{t('manage_users_desc', 'Manage users, roles, and permissions.')}</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('manage_users', 'Users Management')}</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{t('manage_users_desc', 'Manage users, roles, and permissions.')}</p>
         </div>
         <button
           onClick={handleAdd}
@@ -115,7 +115,7 @@ export default function UsersPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
+      <div className="bg-white dark:bg-[#171921] p-4 rounded-xl border border-gray-100 dark:border-[#262833] shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
         <div className="relative w-full sm:w-96">
           <Search className={clsx("absolute top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400", isRtl ? "right-3" : "left-3")} />
           <input
@@ -124,7 +124,7 @@ export default function UsersPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={clsx(
-              "w-full py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent",
+              "w-full py-2 text-sm bg-gray-50 dark:bg-[#1c1e27] border border-gray-200 dark:border-[#262833] rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent dark:text-gray-200",
               isRtl ? "pr-10 pl-4" : "pl-10 pr-4"
             )} />
           
@@ -135,7 +135,7 @@ export default function UsersPage() {
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2">
+            className="bg-gray-50 dark:bg-[#1c1e27] border border-gray-200 dark:border-[#262833] text-gray-700 dark:text-gray-300 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2">
             
             <option value="All">{t('all_roles', 'All Roles')}</option>
             <option value="Admin">{t('admin', 'Admin')}</option>
@@ -146,10 +146,10 @@ export default function UsersPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-[#171921] rounded-xl border border-gray-100 dark:border-[#262833] shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className={clsx("w-full text-sm text-gray-500", isRtl ? "text-right" : "text-left")}>
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
+          <table className={clsx("w-full text-sm text-gray-500 dark:text-gray-400", isRtl ? "text-right" : "text-left")}>
+            <thead className="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-[#0f1117] border-b border-gray-100 dark:border-[#262833]">
               <tr>
                 <th scope="col" className={clsx("px-6 py-3", isRtl ? "text-right" : "text-left")}>{t('name', 'Name')}</th>
                 <th scope="col" className={clsx("px-6 py-3", isRtl ? "text-right" : "text-left")}>{t('role', 'Role')}</th>
@@ -161,14 +161,14 @@ export default function UsersPage() {
             <tbody>
               {filteredUsers.length > 0 ?
               filteredUsers.map((user) =>
-              <tr key={user.id} className="bg-white border-b border-gray-50 hover:bg-gray-50 transition-colors">
+              <tr key={user.id} className="bg-white dark:bg-[#171921] border-b border-gray-50 dark:border-[#262833] hover:bg-gray-50 dark:hover:bg-[#1c1e27] transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold text-xs">
+                        <div className="h-8 w-8 rounded-full bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-400 flex items-center justify-center font-bold text-xs">
                           {user.name.charAt(0)}
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900">{user.name}</div>
+                          <div className="font-medium text-gray-900 dark:text-gray-100">{user.name}</div>
                           <div className="text-xs text-gray-400">{user.email}</div>
                         </div>
                       </div>
@@ -176,9 +176,9 @@ export default function UsersPage() {
                     <td className="px-6 py-4">
                       <span className={clsx(
                     "px-2.5 py-0.5 rounded-full text-xs font-medium border",
-                    user.role === 'Admin' ? "bg-purple-50 text-purple-700 border-purple-100" :
-                    user.role === 'Donor' ? "bg-blue-50 text-blue-700 border-blue-100" :
-                    "bg-amber-50 text-amber-700 border-amber-100"
+                    user.role === 'Admin' ? "bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-400 border-purple-100 dark:border-purple-900" :
+                    user.role === 'Donor' ? "bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 border-blue-100 dark:border-blue-900" :
+                    "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border-amber-100 dark:border-amber-900"
                   )}>
                         {t(user.role.toLowerCase(), user.role)}
                       </span>
@@ -191,10 +191,10 @@ export default function UsersPage() {
                         {user.status === 'Banned' && <XCircle size={14} className="text-red-500" />}
                         <span className={clsx(
                       "text-xs font-medium",
-                      user.status === 'Active' ? "text-green-700" :
-                      user.status === 'Inactive' ? "text-gray-500" :
-                      user.status === 'Pending' ? "text-amber-700" :
-                      "text-red-700"
+                      user.status === 'Active' ? "text-green-700 dark:text-green-400" :
+                      user.status === 'Inactive' ? "text-gray-500 dark:text-gray-400" :
+                      user.status === 'Pending' ? "text-amber-700 dark:text-amber-400" :
+                      "text-red-700 dark:text-red-400"
                     )}>
                          {t(user.status.toLowerCase(), user.status)}
                         </span>
@@ -207,13 +207,13 @@ export default function UsersPage() {
                       <div className={clsx("flex items-center gap-2", isRtl ? "justify-start" : "justify-end")}>
                         <button
                       onClick={() => handleEdit(user)}
-                      className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors">
+                      className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 rounded transition-colors">
                       
                           <Edit2 size={16} />
                         </button>
                         <button
                       onClick={() => handleDelete(user.id)}
-                      className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                      className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950 rounded transition-colors"
                       aria-label={t('delete', 'Delete')}>
                       
                           <Trash2 size={16} />
@@ -234,14 +234,14 @@ export default function UsersPage() {
         </div>
         
         {/* Pagination Mock */}
-        <div className="flex items-center justify-between px-6 py-4 bg-gray-50 border-t border-gray-100">
-           <span className="text-sm text-gray-500">{i18n.language.startsWith('ar') ?
-             <span>عرض <span className="font-semibold text-gray-900">1-{filteredUsers.length}</span> من <span className="font-semibold text-gray-900">{users.length}</span></span> :
-             <span>Showing <span className="font-semibold text-gray-900">1-{filteredUsers.length}</span> of <span className="font-semibold text-gray-900">{users.length}</span></span>
+        <div className="flex items-center justify-between px-6 py-4 bg-gray-50 dark:bg-[#0f1117] border-t border-gray-100 dark:border-[#262833]">
+           <span className="text-sm text-gray-500 dark:text-gray-400">{i18n.language.startsWith('ar') ?
+             <span>عرض <span className="font-semibold text-gray-900 dark:text-gray-100">1-{filteredUsers.length}</span> من <span className="font-semibold text-gray-900 dark:text-gray-100">{users.length}</span></span> :
+             <span>Showing <span className="font-semibold text-gray-900 dark:text-gray-100">1-{filteredUsers.length}</span> of <span className="font-semibold text-gray-900 dark:text-gray-100">{users.length}</span></span>
           }</span>
           <div className="flex gap-2">
-            <button className="px-3 py-1 text-sm border border-gray-200 rounded bg-white text-gray-400 cursor-not-allowed">{t('previous', 'Previous')}</button>
-            <button className="px-3 py-1 text-sm border border-gray-200 rounded bg-white text-gray-700 hover:bg-gray-50">{t('next', 'Next')}</button>
+            <button className="px-3 py-1 text-sm border border-gray-200 dark:border-[#262833] rounded bg-white dark:bg-[#171921] text-gray-400 cursor-not-allowed">{t('previous', 'Previous')}</button>
+            <button className="px-3 py-1 text-sm border border-gray-200 dark:border-[#262833] rounded bg-white dark:bg-[#171921] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1c1e27]">{t('next', 'Next')}</button>
           </div>
         </div>
       </div>
@@ -249,46 +249,46 @@ export default function UsersPage() {
       {/* Modal */}
       <AnimatePresence>
         {isModalOpen &&
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/70 backdrop-blur-sm">
             <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            className="bg-white dark:bg-[#171921] rounded-xl shadow-xl w-full max-w-md overflow-hidden">
             
-              <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                <h3 className="font-bold text-gray-900">{editingUser ? t('edit_user', 'Edit User') : t('add_new_user', 'Add New User')}</h3>
-                <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-900">
+              <div className="px-6 py-4 border-b border-gray-100 dark:border-[#262833] flex justify-between items-center bg-gray-50 dark:bg-[#0f1117]">
+                <h3 className="font-bold text-gray-900 dark:text-gray-100">{editingUser ? t('edit_user', 'Edit User') : t('add_new_user', 'Add New User')}</h3>
+                <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
                   <XCircle size={20} />
                 </button>
               </div>
               <form onSubmit={handleSave} className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('full_name', 'Full Name')}</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('full_name', 'Full Name')}</label>
                   <input
                   name="name"
                   defaultValue={editingUser?.name}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 outline-none" />
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-[#262833] rounded-lg focus:ring-red-500 focus:border-red-500 outline-none dark:bg-[#1c1e27] dark:text-gray-200" />
                 
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('email', 'Email Address')}</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('email', 'Email Address')}</label>
                   <input
                   name="email"
                   type="email"
                   defaultValue={editingUser?.email}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 outline-none" />
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-[#262833] rounded-lg focus:ring-red-500 focus:border-red-500 outline-none dark:bg-[#1c1e27] dark:text-gray-200" />
                 
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('role', 'Role')}</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('role', 'Role')}</label>
                     <select
                     name="role"
                     defaultValue={editingUser?.role || 'Donor'}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 outline-none">
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-[#262833] rounded-lg focus:ring-red-500 focus:border-red-500 outline-none dark:bg-[#1c1e27] dark:text-gray-200">
                     
                       <option value="Admin">{t('admin', 'Admin')}</option>
                       <option value="Donor">{t('donor', 'Donor')}</option>
@@ -296,11 +296,11 @@ export default function UsersPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('status', 'Status')}</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('status', 'Status')}</label>
                     <select
                     name="status"
                     defaultValue={editingUser?.status || 'Active'}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 outline-none">
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-[#262833] rounded-lg focus:ring-red-500 focus:border-red-500 outline-none dark:bg-[#1c1e27] dark:text-gray-200">
                     
                       <option value="Active">{t('active', 'Active')}</option>
                       <option value="Inactive">{t('inactive', 'Inactive')}</option>
@@ -313,7 +313,7 @@ export default function UsersPage() {
                   <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-[#1c1e27] border border-gray-300 dark:border-[#262833] rounded-lg hover:bg-gray-50 dark:hover:bg-[#22242e]">
                   
                     {t('cancel', 'Cancel')}
                   </button>

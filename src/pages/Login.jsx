@@ -38,7 +38,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 relative overflow-hidden" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0f1117] flex items-center justify-center p-4 relative overflow-hidden" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Language Switcher */}
       <div className={clsx("absolute top-4 z-50", isRtl ? "left-4" : "right-4")}>
         <LanguageSwitcher />
@@ -54,7 +54,7 @@ export default function LoginPage() {
             y: [0, -30, 0]
           }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-[10%] -right-[10%] w-[60%] h-[60%] rounded-full bg-red-100 mix-blend-multiply filter blur-3xl" />
+          className="absolute -top-[10%] -right-[10%] w-[60%] h-[60%] rounded-full bg-red-100 dark:bg-red-950/30 mix-blend-multiply dark:mix-blend-lighten filter blur-3xl" />
         
         <motion.div
           animate={{
@@ -64,7 +64,7 @@ export default function LoginPage() {
             y: [0, 50, 0]
           }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="absolute -bottom-[10%] -left-[10%] w-[60%] h-[60%] rounded-full bg-gray-200 mix-blend-multiply filter blur-3xl" />
+          className="absolute -bottom-[10%] -left-[10%] w-[60%] h-[60%] rounded-full bg-gray-200 dark:bg-gray-800/30 mix-blend-multiply dark:mix-blend-lighten filter blur-3xl" />
         
       </div>
 
@@ -72,7 +72,7 @@ export default function LoginPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden relative z-10">
+        className="w-full max-w-md bg-white dark:bg-[#171921] rounded-2xl shadow-xl border border-gray-100 dark:border-[#262833] overflow-hidden relative z-10">
         
         <div className="p-8 pb-6">
           <div className="text-center mb-8">
@@ -80,12 +80,12 @@ export default function LoginPage() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.1 }}
-              className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-red-50 mb-4 shadow-inner">
+              className="inline-flex items-center justify-center h-20 w-20 rounded-full bg-red-50 dark:bg-white mb-4 shadow-inner dark:shadow-none dark:ring-1 dark:ring-gray-200">
               
-              <img src={logo} alt="Be Positive Logo" className="h-8 w-8 object-contain" />
+              <img src={logo} alt="Be Positive Logo" className="h-12 w-12 object-contain" />
             </motion.div>
-            <h1 className="text-2xl font-bold text-gray-900">{t('welcome_back', 'Welcome Back')}</h1>
-            <p className="text-gray-500 mt-2 text-sm">{t('enter_credentials', 'Enter your credentials to access your account')}</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('welcome_back', 'Welcome Back')}</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">{t('enter_credentials', 'Enter your credentials to access your account')}</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-5">
@@ -93,7 +93,7 @@ export default function LoginPage() {
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
-              className="bg-red-50 text-red-600 text-sm p-3 rounded-lg flex items-center gap-2 border border-red-100">
+className="bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 text-sm p-3 rounded-lg flex items-center gap-2 border border-red-100 dark:border-red-900">
               
                 <AlertCircle size={16} className="shrink-0" />
                 <span>{t(error, error)}</span>
@@ -101,7 +101,7 @@ export default function LoginPage() {
             }
 
             <div className="space-y-1.5">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t('email', 'Email Address')}
               </label>
               <div className="relative group">
@@ -113,7 +113,7 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={cn("block w-full py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all bg-gray-50 focus:bg-white outline-none", isRtl ? "pr-10 pl-3" : "pl-10 pr-3")}
+                  className={cn("block w-full py-2.5 border border-gray-300 dark:border-[#262833] rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all bg-gray-50 dark:bg-[#1c1e27] dark:text-gray-200 focus:bg-white dark:focus:bg-[#22242e] outline-none", isRtl ? "pr-10 pl-3" : "pl-10 pr-3")}
                   placeholder="admin@bepositive.org"
                   required />
                 
@@ -122,7 +122,7 @@ export default function LoginPage() {
 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t('password', 'Password')}
                 </label>
                 <a href="#" className="text-sm font-medium text-red-600 hover:text-red-700 hover:underline">
@@ -138,7 +138,7 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className={cn("block w-full py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all bg-gray-50 focus:bg-white outline-none", isRtl ? "pr-10 pl-10" : "pl-10 pr-10")}
+                  className={cn("block w-full py-2.5 border border-gray-300 dark:border-[#262833] rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all bg-gray-50 dark:bg-[#1c1e27] dark:text-gray-200 focus:bg-white dark:focus:bg-[#22242e] outline-none", isRtl ? "pr-10 pl-10" : "pl-10 pr-10")}
                   // pr-10 pl-10 because of both icons (startLock and endEye)
                   placeholder="••••••••"
                   required />
@@ -160,7 +160,7 @@ export default function LoginPage() {
                 type="checkbox"
                 className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded cursor-pointer accent-red-600" />
               
-              <label htmlFor="remember-me" className={cn("block text-sm text-gray-700 cursor-pointer select-none", isRtl ? "mr-2" : "ml-2")}>
+              <label htmlFor="remember-me" className={cn("block text-sm text-gray-700 dark:text-gray-300 cursor-pointer select-none", isRtl ? "mr-2" : "ml-2")}>
                 {t('remember_me', 'Remember me for 30 days')}
               </label>
             </div>

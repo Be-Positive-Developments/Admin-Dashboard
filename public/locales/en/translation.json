@@ -174,5 +174,10 @@
     "new_users":  "New Users",
     "page_not_found":  "Page Not Found",
     "page_not_found_desc":  "The page you are looking for doesn\u0027t exist or has been moved.",
-    "go_back_home":  "Go Back Home"
+    "go_back_home":  "Go Back Home",
+    "toggle_theme":  "Toggle theme",
+    "theme_light":  "Light",
+    "theme_dark":  "Dark",
+    "theme_system":  "System",
+    "appearance":  "Appearance"
 }

@@ -110,8 +110,8 @@ export default function CasesPage() {
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('cases_overview', 'Case Management')}</h1>
-          <p className="text-gray-500 text-sm mt-1">{t('cases_desc', 'Track and manage donation requests and blood drives.')}</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('cases_overview', 'Case Management')}</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{t('cases_desc', 'Track and manage donation requests and blood drives.')}</p>
         </div>
         <button className="flex items-center gap-2 bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
           <Plus size={16} />
@@ -129,8 +129,8 @@ export default function CasesPage() {
             className={clsx(
               "px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
               filter === status ?
-              "bg-gray-900 text-white" :
-              "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+              "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900" :
+              "bg-white dark:bg-[#171921] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-[#262833] hover:bg-gray-50 dark:hover:bg-[#1c1e27]"
             )}>
             
               {status === 'All' ? t('all', 'All') : t(status.toLowerCase(), status)}
@@ -144,7 +144,7 @@ export default function CasesPage() {
             type="text"
             placeholder={t('search_cases', 'Search cases...')}
             className={clsx(
-              "w-full py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent shadow-sm",
+              "w-full py-2 text-sm bg-white dark:bg-[#171921] border border-gray-200 dark:border-[#262833] rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent shadow-sm dark:text-gray-200",
               isRtl ? "pr-10 pl-4" : "pl-10 pr-4"
             )} />
           
@@ -159,30 +159,30 @@ export default function CasesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.05 }}
-          className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex flex-col">
+          className="bg-white dark:bg-[#171921] rounded-xl border border-gray-100 dark:border-[#262833] shadow-sm hover:shadow-md transition-shadow flex flex-col">
           
             <div className="p-5 flex-1">
               <div className="flex justify-between items-start mb-3">
                 <span className={clsx(
                 "px-2 py-1 rounded text-xs font-semibold uppercase tracking-wide",
-                item.urgency === 'Critical' ? "bg-red-100 text-red-700" :
-                item.urgency === 'High' ? "bg-orange-100 text-orange-700" :
-                item.urgency === 'Moderate' ? "bg-yellow-100 text-yellow-700" :
-                "bg-blue-100 text-blue-700"
+                item.urgency === 'Critical' ? "bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-400" :
+                item.urgency === 'High' ? "bg-orange-100 dark:bg-orange-950/50 text-orange-700 dark:text-orange-400" :
+                item.urgency === 'Moderate' ? "bg-yellow-100 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-400" :
+                "bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400"
               )}>
                   {t(item.urgency.toLowerCase(), item.urgency)}
                 </span>
-                <button className="text-gray-400 hover:text-gray-900">
+                <button className="text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
                   <MoreHorizontal size={20} />
                 </button>
               </div>
               
-              <h3 className="text-lg font-bold text-gray-900 mb-1 truncate">{item.title}</h3>
-              <p className="text-sm text-gray-500 mb-4">{item.hospital}</p>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1 truncate">{item.title}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{item.hospital}</p>
               
               <div className="flex flex-wrap gap-2 mb-4">
                 {item.tags.map((tag) =>
-              <span key={tag} className="inline-flex items-center gap-1 px-2 py-1 rounded bg-gray-50 text-xs text-gray-600 border border-gray-100">
+              <span key={tag} className="inline-flex items-center gap-1 px-2 py-1 rounded bg-gray-50 dark:bg-[#1c1e27] text-xs text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-[#262833]">
                     <Tag size={10} />
                     {tag}
                   </span>
@@ -190,26 +190,26 @@ export default function CasesPage() {
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center text-sm text-gray-600 gap-2">
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 gap-2">
                   <User size={14} className="text-gray-400" />
-                  <span>{t('patient', 'Patient')}: <span className="font-medium text-gray-900">{item.patient}</span></span>
+                  <span>{t('patient', 'Patient')}: <span className="font-medium text-gray-900 dark:text-gray-100">{item.patient}</span></span>
                 </div>
-                <div className="flex items-center text-sm text-gray-600 gap-2">
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 gap-2">
                   <Heart size={14} className="text-red-500" />
-                  <span>{t('blood_type', 'Blood Type')}: <span className="font-bold text-red-700">{item.bloodType}</span></span>
+                  <span>{t('blood_type', 'Blood Type')}: <span className="font-bold text-red-700 dark:text-red-400">{item.bloodType}</span></span>
                 </div>
-                <div className="flex items-center text-sm text-gray-600 gap-2">
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 gap-2">
                   <Clock size={14} className="text-gray-400" />
                   <span>{t('posted', 'Posted')}: {item.posted}</span>
                 </div>
               </div>
               
-              <div className="mt-4 pt-4 border-t border-gray-50">
-                <div className="flex justify-between text-xs text-gray-500 mb-1">
+              <div className="mt-4 pt-4 border-t border-gray-50 dark:border-[#262833]">
+                <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
                   <span>{t('progress', 'Progress')}</span>
                   <span>{item.donors} / {item.required} {t('donors_count', 'donors')}</span>
                 </div>
-                <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                   <div
                   className="h-full bg-red-600 rounded-full"
                   style={{ width: `${Math.min(item.donors / item.required * 100, 100)}%` }}>
@@ -218,7 +218,7 @@ export default function CasesPage() {
               </div>
             </div>
 
-            <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 rounded-b-xl flex justify-between items-center">
+            <div className="px-5 py-3 bg-gray-50 dark:bg-[#0f1117] border-t border-gray-100 dark:border-[#262833] rounded-b-xl flex justify-between items-center">
               <div className={clsx(
               "text-xs font-semibold flex items-center gap-1.5",
               item.status === 'Active' ? "text-green-600" :
@@ -235,7 +235,7 @@ export default function CasesPage() {
               )}></span>
                 {t(item.status.toLowerCase(), item.status)}
               </div>
-              <button className="text-xs font-medium text-red-700 hover:text-red-800 hover:underline">
+              <button className="text-xs font-medium text-red-700 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:underline">
                 {t('view_details', 'View Details')}
               </button>
             </div>
