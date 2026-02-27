@@ -1,19 +1,24 @@
 import React, { useState } from 'react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle } from 'lucide-react';
 import { clsx } from 'clsx';
+import { cn } from '@/lib/utils';
 import logo from '@/assets/images/be-postive-logo.png';
+import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher';
 
 export default function LoginPage() {
-  useDocumentTitle('Login');
+  const { t, i18n } = useTranslation();
+  useDocumentTitle(t('login', 'Login'));
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const isRtl = i18n.dir() === 'rtl';
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -26,14 +31,19 @@ export default function LoginPage() {
       if (email === 'admin@bepositive.org' && password === 'admin123' || email && password && email !== 'error@test.com') {
         navigate('/');
       } else {
-        setError('Invalid email or password');
+        setError('invalid_email_or_password');
         setIsLoading(false);
       }
     }, 1500);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 relative overflow-hidden" dir={isRtl ? 'rtl' : 'ltr'}>
+      {/* Language Switcher */}
+      <div className={clsx("absolute top-4 z-50", isRtl ? "left-4" : "right-4")}>
+        <LanguageSwitcher />
+      </div>
+
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -74,8 +84,8 @@ export default function LoginPage() {
               
               <img src={logo} alt="Be Positive Logo" className="h-8 w-8 object-contain" />
             </motion.div>
-            <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
-            <p className="text-gray-500 mt-2 text-sm">Sign in to access your admin dashboard</p>
+            <h1 className="text-2xl font-bold text-gray-900">{t('welcome_back', 'Welcome Back')}</h1>
+            <p className="text-gray-500 mt-2 text-sm">{t('enter_credentials', 'Enter your credentials to access your account')}</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-5">
@@ -86,16 +96,16 @@ export default function LoginPage() {
               className="bg-red-50 text-red-600 text-sm p-3 rounded-lg flex items-center gap-2 border border-red-100">
               
                 <AlertCircle size={16} className="shrink-0" />
-                <span>{error}</span>
+                <span>{t(error, error)}</span>
               </motion.div>
             }
 
             <div className="space-y-1.5">
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email Address
+                {t('email', 'Email Address')}
               </label>
               <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors group-focus-within:text-red-500">
+                <div className={cn("absolute inset-y-0 flex items-center pointer-events-none transition-colors group-focus-within:text-red-500", isRtl ? "right-0 pr-3" : "left-0 pl-3")}>
                   <Mail className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
@@ -103,7 +113,7 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all bg-gray-50 focus:bg-white outline-none"
+                  className={cn("block w-full py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all bg-gray-50 focus:bg-white outline-none", isRtl ? "pr-10 pl-3" : "pl-10 pr-3")}
                   placeholder="admin@bepositive.org"
                   required />
                 
@@ -113,14 +123,14 @@ export default function LoginPage() {
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Password
+                  {t('password', 'Password')}
                 </label>
                 <a href="#" className="text-sm font-medium text-red-600 hover:text-red-700 hover:underline">
-                  Forgot password?
+                  {t('forgot_password', 'Forgot password?')}
                 </a>
               </div>
               <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors group-focus-within:text-red-500">
+                <div className={cn("absolute inset-y-0 flex items-center pointer-events-none transition-colors group-focus-within:text-red-500", isRtl ? "right-0 pr-3" : "left-0 pl-3")}>
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
@@ -128,14 +138,15 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all bg-gray-50 focus:bg-white outline-none"
+                  className={cn("block w-full py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all bg-gray-50 focus:bg-white outline-none", isRtl ? "pr-10 pl-10" : "pl-10 pr-10")}
+                  // pr-10 pl-10 because of both icons (startLock and endEye)
                   placeholder="••••••••"
                   required />
                 
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none transition-colors">
+                  className={cn("absolute inset-y-0 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none transition-colors", isRtl ? "left-0 pl-3" : "right-0 pr-3")}>
                   
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -149,8 +160,8 @@ export default function LoginPage() {
                 type="checkbox"
                 className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded cursor-pointer accent-red-600" />
               
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 cursor-pointer select-none">
-                Remember me for 30 days
+              <label htmlFor="remember-me" className={cn("block text-sm text-gray-700 cursor-pointer select-none", isRtl ? "mr-2" : "ml-2")}>
+                {t('remember_me', 'Remember me for 30 days')}
               </label>
             </div>
 
@@ -166,32 +177,12 @@ export default function LoginPage() {
               <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> :
 
               <span className="flex items-center gap-2">
-                  Sign In <ArrowRight className="h-4 w-4" />
+                  {t('signin', 'Sign In')} <ArrowRight className={cn("h-4 w-4", isRtl && "rotate-180")} />
                 </span>
               }
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-xs text-gray-500">
-              By signing in, you agree to our{' '}
-              <a href="#" className="font-medium text-gray-900 hover:underline">
-                Terms of Service
-              </a>{' '}
-              and{' '}
-              <a href="#" className="font-medium text-gray-900 hover:underline">
-                Privacy Policy
-              </a>
-            </p>
-          </div>
-        </div>
-        
-        {/* Footer */}
-        <div className="bg-gray-50 px-8 py-4 border-t border-gray-100 flex items-center justify-center">
-           <p className="text-xs text-gray-500 flex items-center gap-1.5">
-             <ShieldCheck size={14} className="text-green-600" />
-             <span className="font-medium">Secure Admin Portal</span>
-           </p>
         </div>
       </motion.div>
     </div>);
