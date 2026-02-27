@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, useLocation, Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard,
   Users,
@@ -18,6 +19,7 @@ import { motion } from 'motion/react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import logo from '@/assets/images/be-postive-logo.png';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -26,15 +28,18 @@ function cn(...inputs) {
 // Sidebar Component
 const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
   const location = useLocation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.dir() === 'rtl';
 
   const navItems = [
-  { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
-  { name: 'Users', icon: Users, path: '/users' },
-  { name: 'Cases', icon: BriefcaseMedical, path: '/cases' },
-  { name: 'Reports', icon: FileText, path: '/reports' },
-  { name: 'Donations', icon: Heart, path: '/donations' },
-  { name: 'Analytics', icon: PieChart, path: '/analytics' },
-  { name: 'Settings', icon: Settings, path: '/settings' }];
+    { name: t('dashboard', 'Dashboard'), icon: LayoutDashboard, path: '/' },
+    { name: t('users', 'Users'), icon: Users, path: '/users' },
+    { name: t('cases', 'Cases'), icon: BriefcaseMedical, path: '/cases' },
+    { name: t('reports', 'Reports'), icon: FileText, path: '/reports' },
+    { name: t('donations', 'Donations'), icon: Heart, path: '/donations' },
+    { name: t('analytics', 'Analytics'), icon: PieChart, path: '/analytics' },
+    { name: t('settings', 'Settings'), icon: Settings, path: '/settings' }
+  ];
 
 
   return (
@@ -42,10 +47,10 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
       initial={false}
       animate={{
         width: isOpen ? 256 : isMobile ? 0 : 80,
-        x: isMobile && !isOpen ? -256 : 0
+        x: isMobile && !isOpen ? (isRtl ? 256 : -256) : 0
       }}
       className={cn(
-        "fixed left-0 top-0 z-40 h-screen bg-white shadow-xl overflow-hidden border-r border-gray-100 flex flex-col",
+        "fixed start-0 top-0 z-40 h-screen bg-white shadow-xl overflow-hidden border-e border-gray-100 flex flex-col transition-all",
         isMobile ? "absolute" : "relative"
       )}>
       
@@ -64,7 +69,7 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
         </div>
         {!isMobile && isOpen &&
         <button onClick={toggleSidebar} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">
-            <ChevronLeft size={20} />
+            <ChevronLeft size={20} className={cn("transform transition-transform", isRtl && "rotate-180")} />
           </button>
         }
       </div>
@@ -74,7 +79,7 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
           const isActive = location.pathname === item.path;
           return (
             <Link
-              key={item.name}
+              key={item.path}
               to={item.path}
               className={cn(
                 "flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden",
@@ -86,7 +91,7 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
               {isActive &&
               <motion.div
                 layoutId="activeTab"
-                className="absolute left-0 top-0 bottom-0 w-1 bg-[#bf0d0d] rounded-r-full" />
+                className="absolute start-0 top-0 bottom-0 w-1 bg-[#bf0d0d] rounded-e-full" />
 
               }
               <item.icon size={22} className={cn("flex-shrink-0", isActive && "text-[#bf0d0d]")} />
@@ -98,7 +103,10 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
               </motion.span>
               
               {!isOpen && !isMobile &&
-              <div className="absolute left-16 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
+              <div className={cn(
+                "absolute bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap z-[100]",
+                isRtl ? "right-16" : "left-16"
+              )}>
                   {item.name}
                 </div>
               }
@@ -117,7 +125,7 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
             animate={{ opacity: isOpen ? 1 : 0, display: isOpen ? "block" : "none" }}
             className="font-medium whitespace-nowrap">
             
-            Logout
+            {t('logout', 'Logout')}
           </motion.span>
         </button>
       </div>
@@ -127,29 +135,37 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
 
 // Top Navigation
 const TopNav = ({ toggleSidebar }) => {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.dir() === 'rtl';
+
   return (
     <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 sticky top-0 z-30 shadow-sm/50">
       <div className="flex items-center gap-4">
         <button onClick={toggleSidebar} className="p-2 rounded-lg hover:bg-gray-100 text-gray-600">
-          <Menu size={20} />
+          <Menu size={20} className={cn("transform", isRtl && "rotate-180")} />
         </button>
         <div className="hidden md:flex items-center relative">
-          <Search size={18} className="absolute left-3 text-gray-400" />
+          <Search size={18} className={cn("absolute text-gray-400", isRtl ? "right-3" : "left-3")} />
           <input
             type="text"
-            placeholder="Search anything..."
-            className="pl-10 pr-4 py-2 bg-gray-50 border-none rounded-full text-sm focus:ring-2 focus:ring-[#bf0d0d]/20 focus:outline-none w-64 transition-all" />
+            placeholder={t('search', "Search anything...")}
+            className={cn(
+              "py-2 bg-gray-50 border-none rounded-full text-sm focus:ring-2 focus:ring-[#bf0d0d]/20 focus:outline-none w-64 transition-all",
+              isRtl ? "pr-10 pl-4" : "pl-10 pr-4"
+            )} />
           
         </div>
       </div>
 
       <div className="flex items-center gap-4">
+        <LanguageSwitcher />
+
         <button className="relative p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors">
           <Bell size={20} />
           <span className="absolute top-2 right-2 w-2 h-2 bg-[#bf0d0d] rounded-full border border-white"></span>
         </button>
-        <div className="flex items-center gap-3 pl-4 border-l border-gray-100">
-          <div className="text-right hidden sm:block">
+        <div className="flex items-center gap-3 pl-4 border-l border-gray-100 rtl:border-l-0 rtl:border-r rtl:pr-4 rtl:pl-0">
+          <div className="text-right hidden sm:block rtl:text-left">
             <p className="text-sm font-semibold text-gray-900">Dr. Sarah Jenkins</p>
             <p className="text-xs text-gray-500">Admin</p>
           </div>
@@ -166,6 +182,8 @@ const TopNav = ({ toggleSidebar }) => {
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const { i18n } = useTranslation();
+  const isRtl = i18n.dir() === 'rtl';
 
   // Simple responsive check
   useEffect(() => {
@@ -191,7 +209,7 @@ export default function DashboardLayout() {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   return (
-    <div className="flex h-screen bg-gray-50 font-sans text-gray-900 overflow-hidden">
+    <div className="flex h-screen bg-gray-50 font-sans text-gray-900 overflow-hidden" dir={isRtl ? 'rtl' : 'ltr'}>
       <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} isMobile={isMobile} />
       
       <div className="flex-1 flex flex-col h-screen overflow-hidden w-full">

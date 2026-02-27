@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { useTranslation } from 'react-i18next';
 import {
   Plus,
   Search,
@@ -97,21 +98,24 @@ const cases = [
 
 
 export default function CasesPage() {
-  useDocumentTitle('Cases');
+  const { t, i18n } = useTranslation();
+  useDocumentTitle(t('cases', 'Cases'));
   const [filter, setFilter] = useState('All');
 
   const filteredCases = filter === 'All' ? cases : cases.filter((c) => c.status === filter);
+  
+  const isRtl = i18n.dir() === 'rtl';
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Case Management</h1>
-          <p className="text-gray-500 text-sm mt-1">Track and manage donation requests and blood drives.</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('cases_overview', 'Case Management')}</h1>
+          <p className="text-gray-500 text-sm mt-1">{t('cases_desc', 'Track and manage donation requests and blood drives.')}</p>
         </div>
         <button className="flex items-center gap-2 bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
           <Plus size={16} />
-          Create New Case
+          {t('add_new_case', 'Create New Case')}
         </button>
       </div>
 
@@ -129,17 +133,20 @@ export default function CasesPage() {
               "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
             )}>
             
-              {status}
+              {status === 'All' ? t('all', 'All') : t(status.toLowerCase(), status)}
             </button>
           )}
         </div>
         
         <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className={clsx("absolute top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400", isRtl ? "right-3" : "left-3")} />
           <input
             type="text"
-            placeholder="Search cases..."
-            className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent shadow-sm" />
+            placeholder={t('search_cases', 'Search cases...')}
+            className={clsx(
+              "w-full py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent shadow-sm",
+              isRtl ? "pr-10 pl-4" : "pl-10 pr-4"
+            )} />
           
         </div>
       </div>
@@ -163,7 +170,7 @@ export default function CasesPage() {
                 item.urgency === 'Moderate' ? "bg-yellow-100 text-yellow-700" :
                 "bg-blue-100 text-blue-700"
               )}>
-                  {item.urgency}
+                  {t(item.urgency.toLowerCase(), item.urgency)}
                 </span>
                 <button className="text-gray-400 hover:text-gray-900">
                   <MoreHorizontal size={20} />
@@ -185,22 +192,22 @@ export default function CasesPage() {
               <div className="space-y-2">
                 <div className="flex items-center text-sm text-gray-600 gap-2">
                   <User size={14} className="text-gray-400" />
-                  <span>Patient: <span className="font-medium text-gray-900">{item.patient}</span></span>
+                  <span>{t('patient', 'Patient')}: <span className="font-medium text-gray-900">{item.patient}</span></span>
                 </div>
                 <div className="flex items-center text-sm text-gray-600 gap-2">
                   <Heart size={14} className="text-red-500" />
-                  <span>Blood Type: <span className="font-bold text-red-700">{item.bloodType}</span></span>
+                  <span>{t('blood_type', 'Blood Type')}: <span className="font-bold text-red-700">{item.bloodType}</span></span>
                 </div>
                 <div className="flex items-center text-sm text-gray-600 gap-2">
                   <Clock size={14} className="text-gray-400" />
-                  <span>Posted: {item.posted}</span>
+                  <span>{t('posted', 'Posted')}: {item.posted}</span>
                 </div>
               </div>
               
               <div className="mt-4 pt-4 border-t border-gray-50">
                 <div className="flex justify-between text-xs text-gray-500 mb-1">
-                  <span>Progress</span>
-                  <span>{item.donors} / {item.required} donors</span>
+                  <span>{t('progress', 'Progress')}</span>
+                  <span>{item.donors} / {item.required} {t('donors_count', 'donors')}</span>
                 </div>
                 <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
                   <div
@@ -212,7 +219,7 @@ export default function CasesPage() {
             </div>
 
             <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 rounded-b-xl flex justify-between items-center">
-              <span className={clsx(
+              <div className={clsx(
               "text-xs font-semibold flex items-center gap-1.5",
               item.status === 'Active' ? "text-green-600" :
               item.status === 'Pending' ? "text-amber-600" :
@@ -226,10 +233,10 @@ export default function CasesPage() {
                 item.status === 'Rejected' ? "bg-red-600" :
                 "bg-blue-600"
               )}></span>
-                {item.status}
-              </span>
+                {t(item.status.toLowerCase(), item.status)}
+              </div>
               <button className="text-xs font-medium text-red-700 hover:text-red-800 hover:underline">
-                View Details
+                {t('view_details', 'View Details')}
               </button>
             </div>
           </motion.div>

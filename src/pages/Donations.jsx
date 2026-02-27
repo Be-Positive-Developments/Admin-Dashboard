@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { useTranslation } from 'react-i18next';
 import {
 
   DollarSign,
@@ -37,37 +38,38 @@ const recentDonations = [
 { id: 'DON-006', donor: 'David Miller', amount: '$75.00', date: '2023-10-11', method: 'Card', status: 'Completed' }];
 
 
-const donationStats = [
-{ title: 'Total Donations', value: '$12,450', change: '+12.5%', icon: DollarSign, color: 'text-green-600 bg-green-50' },
-{ title: 'Avg. Donation', value: '$45.20', change: '+3.2%', icon: TrendingUp, color: 'text-blue-600 bg-blue-50' },
-{ title: 'Recurring Donors', value: '142', change: '+8.7%', icon: User, color: 'text-purple-600 bg-purple-50' },
-{ title: 'This Month', value: '$3,240', change: '+15.1%', icon: Calendar, color: 'text-red-600 bg-red-50' }];
-
-
-const chartData = [
-{ name: 'Mon', amount: 400 },
-{ name: 'Tue', amount: 300 },
-{ name: 'Wed', amount: 550 },
-{ name: 'Thu', amount: 450 },
-{ name: 'Fri', amount: 600 },
-{ name: 'Sat', amount: 800 },
-{ name: 'Sun', amount: 750 }];
-
-
 export default function DonationsPage() {
-  useDocumentTitle('Donations');
+  const { t } = useTranslation();
+  useDocumentTitle(t('donations', 'Donations'));
   const [filter, setFilter] = useState('All');
+
+  const donationStats = [
+    { title: t('total_donations_stat', 'Total Donations'), value: '$12,450', change: '+12.5%', icon: DollarSign, color: 'text-green-600 bg-green-50' },
+    { title: t('avg_donation', 'Avg. Donation'), value: '$45.20', change: '+3.2%', icon: TrendingUp, color: 'text-blue-600 bg-blue-50' },
+    { title: t('recurring_donors', 'Recurring Donors'), value: '142', change: '+8.7%', icon: User, color: 'text-purple-600 bg-purple-50' },
+    { title: t('this_month', 'This Month'), value: '$3,240', change: '+15.1%', icon: Calendar, color: 'text-red-600 bg-red-50' }
+  ];
+
+  const chartData = [
+    { name: t('mon', 'Mon'), amount: 400 },
+    { name: t('tue', 'Tue'), amount: 300 },
+    { name: t('wed', 'Wed'), amount: 550 },
+    { name: t('thu', 'Thu'), amount: 450 },
+    { name: t('fri', 'Fri'), amount: 600 },
+    { name: t('sat', 'Sat'), amount: 800 },
+    { name: t('sun', 'Sun'), amount: 750 }
+  ];
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Donations Overview</h1>
-          <p className="text-gray-500 text-sm mt-1">Monitor donation streams and financial health.</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('donations_overview', 'Donations Overview')}</h1>
+          <p className="text-gray-500 text-sm mt-1">{t('donations_desc', 'Monitor donation streams and financial health.')}</p>
         </div>
         <button className="flex items-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
           <Download size={16} />
-          Export CSV
+          {t('export_csv', 'Export CSV')}
         </button>
       </div>
 
@@ -99,14 +101,14 @@ export default function DonationsPage() {
         {/* Chart */}
         <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-bold text-gray-900">Revenue Trends</h3>
+            <h3 className="text-lg font-bold text-gray-900">{t('revenue_trends', 'Revenue Trends')}</h3>
             <select className="bg-gray-50 border border-gray-200 text-gray-700 text-xs rounded-lg p-2 focus:ring-red-500 focus:border-red-500 outline-none">
-              <option>Last 7 Days</option>
-              <option>Last 30 Days</option>
-              <option>This Year</option>
+              <option>{t('last_7_days', 'Last 7 Days')}</option>
+              <option>{t('last_30_days', 'Last 30 Days')}</option>
+              <option>{t('this_year', 'This Year')}</option>
             </select>
           </div>
-          <div className="h-64 w-full">
+          <div className="h-64 w-full" dir="ltr">
             <ResponsiveContainer width="100%" height="100%" minWidth={0}>
               <AreaChart data={chartData}>
                 <defs>
@@ -121,7 +123,8 @@ export default function DonationsPage() {
                 <Tooltip
                   contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #f3f4f6', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                   itemStyle={{ color: '#16a34a', fontWeight: 600 }}
-                  formatter={(value) => [`$${value}`, 'Amount']} />
+                  formatter={(value) => [`$${value}`, t('amount', 'Amount')]}
+                />
                 
                 <Area type="monotone" dataKey="amount" stroke="#16a34a" strokeWidth={2} fillOpacity={1} fill="url(#colorAmount)" />
               </AreaChart>
@@ -131,12 +134,12 @@ export default function DonationsPage() {
 
         {/* Recent Transactions List */}
         <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col h-full">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Recent Transactions</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-4">{t('recent_transactions', 'Recent Transactions')}</h3>
           <div className="flex-1 overflow-y-auto pr-2 space-y-4 max-h-96">
-            {recentDonations.map((donation) =>
-            <div key={donation.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
+            {recentDonations.map((donation) => (
+              <div key={donation.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-xs">
+                  <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-xs ring-2 ring-white">
                     {donation.donor.charAt(0)}
                   </div>
                   <div>
@@ -146,28 +149,27 @@ export default function DonationsPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-bold text-gray-900">{donation.amount}</p>
-                  <div className="flex items-center justify-end gap-1 mt-0.5">
-                    {donation.status === 'Completed' && <CheckCircle size={10} className="text-green-500" />}
-                    {donation.status === 'Processing' && <Clock size={10} className="text-amber-500" />}
-                    {donation.status === 'Failed' && <XCircle size={10} className="text-red-500" />}
+                  <div className="flex items-center justify-end gap-1.5 mt-1">
+                    {donation.status === 'Completed' && <CheckCircle size={12} className="text-green-500" />}
+                    {donation.status === 'Processing' && <Clock size={12} className="text-amber-500" />}
+                    {donation.status === 'Failed' && <XCircle size={12} className="text-red-500" />}
                     <span className={clsx(
-                    "text-[10px] font-medium uppercase tracking-wide",
-                    donation.status === 'Completed' ? "text-green-600" :
-                    donation.status === 'Processing' ? "text-amber-600" :
-                    "text-red-600"
-                  )}>
-                      {donation.status}
+                      "text-[10px] font-semibold uppercase tracking-wider",
+                      donation.status === 'Completed' ? "text-green-600" :
+                      donation.status === 'Processing' ? "text-amber-600" :
+                      "text-red-600"
+                    )}>
+                      {t(donation.status.toLowerCase(), donation.status)}
                     </span>
                   </div>
                 </div>
               </div>
-            )}
+            ))}
           </div>
           <button className="w-full mt-4 py-2 text-sm text-gray-600 font-medium hover:bg-gray-50 rounded-lg transition-colors border border-gray-200 hover:border-gray-300">
-            View All Transactions
+            {t('view_all_transactions', 'View All Transactions')}
           </button>
         </div>
       </div>
     </div>);
-
 }

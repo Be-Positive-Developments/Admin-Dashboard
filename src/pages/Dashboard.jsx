@@ -97,7 +97,7 @@ export default function Dashboard() {
               <option>Last Year</option>
             </select>
           </div>
-          <div className="h-80 w-full">
+          <div className="h-80 w-full" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -117,7 +117,7 @@ export default function Dashboard() {
         {/* Secondary Chart */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-zinc-100">
           <h3 className="text-lg font-bold text-zinc-900 mb-6">Blood Type Distribution</h3>
-          <div className="h-64 w-full">
+          <div className="h-64 w-full" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
