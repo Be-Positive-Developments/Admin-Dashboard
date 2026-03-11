@@ -1,10 +1,13 @@
-import { useQuery } from '@tanstack/react-query';
-import { getAnalytics, getAnalyticsByRange } from '@/services/analytics.service';
+import { useQuery } from "@tanstack/react-query";
+import {
+  getAnalytics,
+  getAnalyticsByRange,
+} from "@/services/analytics.service";
 
 export const analyticsKeys = {
-  all: ['analytics'],
-  overview: () => ['analytics', 'overview'],
-  range: (params) => ['analytics', 'range', params],
+  all: ["analytics"],
+  overview: () => ["analytics", "overview"],
+  range: (params) => ["analytics", "range", params],
 };
 
 // ─── Queries ─────────────────────────────────────────────────────────────────

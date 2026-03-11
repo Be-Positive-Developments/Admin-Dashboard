@@ -1,13 +1,13 @@
-import { useTranslation } from 'react-i18next';
-import { useTheme } from '@/components/ThemeProvider';
-import { Button } from '@/components/ui/button';
+import { useTranslation } from "react-i18next";
+import { useTheme } from "@/components/ThemeProvider";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Sun, Moon, Monitor } from 'lucide-react';
+} from "@/components/ui/dropdown-menu";
+import { Sun, Moon, Monitor } from "lucide-react";
 
 /**
  * ThemeSwitcher — lets the user pick between Light, Dark, or System theme.
@@ -28,30 +28,30 @@ export function ThemeSwitcher() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon">
           {icon[theme]}
-          <span className="sr-only">{t('toggle_theme', 'Toggle theme')}</span>
+          <span className="sr-only">{t("toggle_theme", "Toggle theme")}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem
-          onClick={() => setTheme('light')}
-          className={theme === 'light' ? 'bg-accent' : ''}
+          onClick={() => setTheme("light")}
+          className={theme === "light" ? "bg-accent" : ""}
         >
           <Sun className="h-4 w-4 me-2" />
-          {t('theme_light', 'Light')}
+          {t("theme_light", "Light")}
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => setTheme('dark')}
-          className={theme === 'dark' ? 'bg-accent' : ''}
+          onClick={() => setTheme("dark")}
+          className={theme === "dark" ? "bg-accent" : ""}
         >
           <Moon className="h-4 w-4 me-2" />
-          {t('theme_dark', 'Dark')}
+          {t("theme_dark", "Dark")}
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => setTheme('system')}
-          className={theme === 'system' ? 'bg-accent' : ''}
+          onClick={() => setTheme("system")}
+          className={theme === "system" ? "bg-accent" : ""}
         >
           <Monitor className="h-4 w-4 me-2" />
-          {t('theme_system', 'System')}
+          {t("theme_system", "System")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,32 +1,168 @@
-import axiosInstance from '@/lib/axiosInstance';
+import axiosInstance from "@/lib/axiosInstance";
+import {
+  storeTokens,
+  clearTokens,
+  getRefreshToken,
+  broadcastLogout,
+} from "@/lib/sessionManager";
 
 /**
- * Auth service — handles login and logout API calls.
+ * Auth service — maps to /api/Auth endpoints.
  *
- * login:  POSTs credentials, receives a JWT token, and stores it in
- *         localStorage so the request interceptor picks it up automatically
- *         on subsequent requests.
- * logout: Removes the token from localStorage (server-side invalidation
- *         can be added here if the backend supports it).
+ * Response shape from the backend (LoginResult):
+ * {
+ *   success: boolean,
+ *   message: string,
+ *   errorCode: string | null,
+ *   auth: { token, refreshtoken, tokenexpiry } | null,
+ *   verification: { requiresOtpVerification, emailConfirmed, email? } | null,
+ *   user: { id, userName, email, userType, roles } | null,
+ * }
  */
 
+// ─── Login ───────────────────────────────────────────────────────────────────
+
 /**
+ * POST /api/Auth/login
  * @param {{ email: string, password: string }} credentials
- * @returns {Promise<{ token: string, user: object }>}
+ * @returns {Promise<LoginResult>}
+ *
+ * On 200 → tokens are stored automatically.
+ * On 202 → returns verification details (OTP required).
+ * On 401 → invalid credentials (axios throws, caller catches).
+ * On 403 → account locked.
  */
 export const login = async (credentials) => {
-  const { data } = await axiosInstance.post('/auth/login', credentials);
+  const { data } = await axiosInstance.post("/Auth/login", credentials);
 
-  if (data?.token) {
-    localStorage.setItem('token', data.token);
-  }
+  // Don't store tokens here — the login page will store them
+  // only after OTP verification succeeds.
+
+  return data;
+};
+
+// ─── OTP Verification (Login 2FA) ───────────────────────────────────────────
+
+/**
+ * POST /api/Auth/login/verify
+ * @param {{ email: string, otp: string }} payload
+ * @returns {Promise<LoginResult>}
+ */
+export const verifyLoginOtp = async (payload) => {
+  const { data } = await axiosInstance.post("/Auth/login/verify", payload);
+
+  // Tokens are stored by the caller (Login.jsx) via sessionManager.storeTokens
+  // so the remember-me flag is respected.
 
   return data;
 };
 
 /**
- * @returns {void}
+ * POST /api/Auth/login/resend-otp?email=...
+ * @param {string} email
+ * @returns {Promise<ResendOtpResult>}
  */
-export const logout = () => {
-  localStorage.removeItem('token');
+export const resendLoginOtp = async (email) => {
+  const { data } = await axiosInstance.post(
+    `/Auth/login/resend-otp?email=${encodeURIComponent(email)}`,
+  );
+  return data;
+};
+
+// ─── Forgot Password ────────────────────────────────────────────────────────
+
+/**
+ * POST /api/Auth/password/forgot?email=...
+ * Sends a 6-digit OTP to the user's email.
+ * @param {string} email
+ * @returns {Promise<ForgotPasswordResult>}
+ */
+export const forgotPassword = async (email) => {
+  const { data } = await axiosInstance.post(
+    `/Auth/password/forgot?email=${encodeURIComponent(email)}`,
+  );
+  return data;
+};
+
+/**
+ * POST /api/Auth/password/verifyotp
+ * Verifies the OTP and returns a short-lived reset token.
+ * @param {{ email: string, otp: string }} payload
+ * @returns {Promise<VerifyResetOtpResult>}
+ */
+export const verifyPasswordOtp = async (payload) => {
+  const { data } = await axiosInstance.post(
+    "/Auth/password/verifyotp",
+    payload,
+  );
+  return data;
+};
+
+/**
+ * POST /api/Auth/password/reset
+ * Final step — resets the password using the reset token.
+ * @param {{ email: string, token: string, newPassword: string }} payload
+ * @returns {Promise<ResetPasswordResult>}
+ */
+export const resetPassword = async (payload) => {
+  const { data } = await axiosInstance.post("/Auth/password/reset", payload);
+  return data;
+};
+
+/**
+ * POST /api/Auth/password/resend-otp?email=...
+ * @param {string} email
+ * @returns {Promise<ResendOtpResult>}
+ */
+export const resendPasswordOtp = async (email) => {
+  const { data } = await axiosInstance.post(
+    `/Auth/password/resend-otp?email=${encodeURIComponent(email)}`,
+  );
+  return data;
+};
+
+// ─── Logout ──────────────────────────────────────────────────────────────────
+
+/**
+ * POST /api/Auth/logout  (requires Bearer token)
+ * Revokes all refresh tokens server-side, then clears local storage.
+ */
+export const logout = async () => {
+  try {
+    await axiosInstance.post("/Auth/logout");
+  } finally {
+    clearTokens();
+    broadcastLogout();
+  }
+};
+
+// ─── Token Refresh ───────────────────────────────────────────────────────────
+
+/**
+ * POST /api/Auth/token/refresh
+ * @returns {Promise<RefreshTokenResult>}
+ */
+export const refreshToken = async () => {
+  const currentRefreshToken = getRefreshToken();
+
+  const { data } = await axiosInstance.post("/Auth/token/refresh", {
+    refreshtoken: currentRefreshToken,
+  });
+
+  if (data?.auth) {
+    storeTokens(data.auth);
+  }
+
+  return data;
+};
+
+// ─── Current User ────────────────────────────────────────────────────────────
+
+/**
+ * GET /api/Auth/me
+ * @returns {Promise<object>}
+ */
+export const getCurrentUser = async () => {
+  const { data } = await axiosInstance.get("/Auth/me");
+  return data;
 };

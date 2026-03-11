@@ -1,4 +1,4 @@
-import axiosInstance from '@/lib/axiosInstance';
+import axiosInstance from "@/lib/axiosInstance";
 
 /**
  * Reports service — operations for the /reports resource.
@@ -9,7 +9,7 @@ import axiosInstance from '@/lib/axiosInstance';
  * @returns {Promise<{ data: object[], total: number }>}
  */
 export const getReports = async (params = {}) => {
-  const { data } = await axiosInstance.get('/reports', { params });
+  const { data } = await axiosInstance.get("/reports", { params });
   return data;
 };
 
@@ -28,6 +28,6 @@ export const getReportById = async (id) => {
  * @returns {Promise<{ downloadUrl: string }>}
  */
 export const exportReport = async (payload) => {
-  const { data } = await axiosInstance.post('/reports/export', payload);
+  const { data } = await axiosInstance.post("/reports/export", payload);
   return data;
 };

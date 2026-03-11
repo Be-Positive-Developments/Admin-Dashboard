@@ -1,16 +1,16 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getDonations,
   getDonationById,
   createDonation,
   updateDonation,
   deleteDonation,
-} from '@/services/donations.service';
+} from "@/services/donations.service";
 
 export const donationKeys = {
-  all: ['donations'],
-  list: (params) => ['donations', 'list', params],
-  detail: (id) => ['donations', 'detail', id],
+  all: ["donations"],
+  list: (params) => ["donations", "list", params],
+  detail: (id) => ["donations", "detail", id],
 };
 
 // ─── Queries ─────────────────────────────────────────────────────────────────

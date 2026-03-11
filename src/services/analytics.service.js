@@ -1,4 +1,4 @@
-import axiosInstance from '@/lib/axiosInstance';
+import axiosInstance from "@/lib/axiosInstance";
 
 /**
  * Analytics service — fetches dashboard statistics and chart data.
@@ -9,7 +9,7 @@ import axiosInstance from '@/lib/axiosInstance';
  * @returns {Promise<object>}
  */
 export const getAnalytics = async () => {
-  const { data } = await axiosInstance.get('/analytics');
+  const { data } = await axiosInstance.get("/analytics");
   return data;
 };
 
@@ -19,6 +19,6 @@ export const getAnalytics = async () => {
  * @returns {Promise<object>}
  */
 export const getAnalyticsByRange = async (params) => {
-  const { data } = await axiosInstance.get('/analytics/range', { params });
+  const { data } = await axiosInstance.get("/analytics/range", { params });
   return data;
 };

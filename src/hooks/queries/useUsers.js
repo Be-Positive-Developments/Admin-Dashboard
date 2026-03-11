@@ -1,20 +1,20 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getUsers,
   getUserById,
   createUser,
   updateUser,
   deleteUser,
-} from '@/services/users.service';
+} from "@/services/users.service";
 
 /**
  * Query keys are centralised here so they can be reused for
  * cache invalidation without magic strings scattered around the app.
  */
 export const userKeys = {
-  all: ['users'],
-  list: (params) => ['users', 'list', params],
-  detail: (id) => ['users', 'detail', id],
+  all: ["users"],
+  list: (params) => ["users", "list", params],
+  detail: (id) => ["users", "detail", id],
 };
 
 // ─── Queries ─────────────────────────────────────────────────────────────────
