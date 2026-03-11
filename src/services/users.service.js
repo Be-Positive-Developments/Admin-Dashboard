@@ -1,4 +1,4 @@
-import axiosInstance from '@/lib/axiosInstance';
+import axiosInstance from "@/lib/axiosInstance";
 
 /**
  * Users service — CRUD operations for the /users resource.
@@ -13,7 +13,7 @@ import axiosInstance from '@/lib/axiosInstance';
  * @returns {Promise<{ data: object[], total: number, page: number }>}
  */
 export const getUsers = async (params = {}) => {
-  const { data } = await axiosInstance.get('/users', { params });
+  const { data } = await axiosInstance.get("/users", { params });
   return data;
 };
 
@@ -33,7 +33,7 @@ export const getUserById = async (id) => {
  * @returns {Promise<object>}
  */
 export const createUser = async (payload) => {
-  const { data } = await axiosInstance.post('/users', payload);
+  const { data } = await axiosInstance.post("/users", payload);
   return data;
 };
 

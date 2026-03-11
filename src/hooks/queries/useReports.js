@@ -1,14 +1,14 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   getReports,
   getReportById,
   exportReport,
-} from '@/services/reports.service';
+} from "@/services/reports.service";
 
 export const reportKeys = {
-  all: ['reports'],
-  list: (params) => ['reports', 'list', params],
-  detail: (id) => ['reports', 'detail', id],
+  all: ["reports"],
+  list: (params) => ["reports", "list", params],
+  detail: (id) => ["reports", "detail", id],
 };
 
 // ─── Queries ─────────────────────────────────────────────────────────────────

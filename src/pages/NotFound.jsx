@@ -1,13 +1,13 @@
-import React from 'react';
-import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
-import { motion } from 'motion/react';
-import { Home, Search } from 'lucide-react';
+import React from "react";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router";
+import { motion } from "motion/react";
+import { Home, Search } from "lucide-react";
 
 export default function NotFound() {
   const { t } = useTranslation();
-  useDocumentTitle(t('page_not_found', 'Page Not Found'));
+  useDocumentTitle(t("page_not_found", "Page Not Found"));
 
   return (
     <div className="flex items-center justify-center h-[60vh] px-6">
@@ -29,7 +29,7 @@ export default function NotFound() {
               transition={{
                 duration: 5,
                 repeat: Infinity,
-                ease: 'easeInOut',
+                ease: "easeInOut",
               }}
               className="absolute inset-0 flex items-center justify-center italic font-bold text-6xl text-red-600"
             >
@@ -45,7 +45,7 @@ export default function NotFound() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4"
         >
-          {t('page_not_found', 'Page Not Found')}
+          {t("page_not_found", "Page Not Found")}
         </motion.h1>
 
         {/* Description */}
@@ -55,7 +55,10 @@ export default function NotFound() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="text-gray-500 dark:text-gray-400 mb-8 text-lg"
         >
-          {t('page_not_found_desc', "The page you are looking for doesn't exist or has been moved.")}
+          {t(
+            "page_not_found_desc",
+            "The page you are looking for doesn't exist or has been moved.",
+          )}
         </motion.p>
 
         {/* Back home button */}
@@ -69,7 +72,7 @@ export default function NotFound() {
             className="inline-flex items-center gap-2 bg-red-700 hover:bg-red-800 text-white px-8 py-3 rounded-lg font-medium transition-colors"
           >
             <Home className="w-5 h-5" />
-            {t('go_back_home', 'Go Back Home')}
+            {t("go_back_home", "Go Back Home")}
           </Link>
         </motion.div>
       </div>

@@ -8,51 +8,60 @@ import {
   Lock,
   Eye,
   EyeOff,
-  ArrowRight,
   ArrowLeft,
   AlertCircle,
   ShieldCheck,
   RefreshCw,
+  CheckCircle2,
+  KeyRound,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { cn } from "@/lib/utils";
-import { getApiError } from "@/lib/apiErrors";
-import { setRememberMe, storeTokens } from "@/lib/sessionManager";
 import logo from "@/assets/images/be-postive-logo.png";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import {
-  useLogin,
-  useVerifyLoginOtp,
-  useResendLoginOtp,
+  useForgotPassword,
+  useVerifyPasswordOtp,
+  useResetPassword,
+  useResendPasswordOtp,
 } from "@/hooks/queries/useAuth";
+import { getApiError } from "@/lib/apiErrors";
 
 const OTP_LENGTH = 6;
 
-export default function LoginPage() {
+export default function ForgotPasswordPage() {
   const { t, i18n } = useTranslation();
-  useDocumentTitle(t("login", "Login"));
+  useDocumentTitle(t("forgot_password", "Forgot Password"));
   const navigate = useNavigate();
   const isRtl = i18n.dir() === "rtl";
 
   // ─── State ──────────────────────────────────────────────────────────────────
-  const [step, setStep] = useState("credentials"); // 'credentials' | 'otp'
+  const [step, setStep] = useState("email"); // 'email' | 'otp' | 'reset' | 'success'
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const [rememberMe, setRememberMeChecked] = useState(false);
 
   // OTP state
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
   const otpRefs = useRef([]);
   const [resendCooldown, setResendCooldown] = useState(0);
 
-  // ─── Mutations ──────────────────────────────────────────────────────────────
-  const loginMutation = useLogin();
-  const verifyOtpMutation = useVerifyLoginOtp();
-  const resendOtpMutation = useResendLoginOtp();
+  // Reset state
+  const [resetToken, setResetToken] = useState(""); // returned by /password/verifyotp
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const isLoading = loginMutation.isPending || verifyOtpMutation.isPending;
+  // ─── Mutations ──────────────────────────────────────────────────────────────
+  const forgotMutation = useForgotPassword();
+  const verifyOtpMutation = useVerifyPasswordOtp();
+  const resetMutation = useResetPassword();
+  const resendOtpMutation = useResendPasswordOtp();
+
+  const isLoading =
+    forgotMutation.isPending ||
+    verifyOtpMutation.isPending ||
+    resetMutation.isPending;
 
   // ─── Resend cooldown timer ──────────────────────────────────────────────────
   useEffect(() => {
@@ -63,39 +72,24 @@ export default function LoginPage() {
 
   // ─── Handlers ───────────────────────────────────────────────────────────────
 
-  const handleLogin = (e) => {
+  /** Step 1 — send OTP to email */
+  const handleSendCode = (e) => {
     e.preventDefault();
     setError("");
 
-    loginMutation.mutate(
-      { email, password },
-      {
-        onSuccess: (data) => {
-          // 200 — direct login success
-          if (data?.auth) {
-            setRememberMe(rememberMe);
-            storeTokens(data.auth);
-            navigate("/");
-            return;
-          }
-
-          // 202 — OTP required (2FA or email not confirmed)
-          if (
-            data?.verification?.requiresOtpVerification ||
-            data?.verification?.emailConfirmed === false
-          ) {
-            setStep("otp");
-            setOtp(Array(OTP_LENGTH).fill(""));
-            setResendCooldown(60);
-          }
-        },
-        onError: (err) => {
-          setError(getApiError(err, "invalid_email_or_password"));
-        },
+    forgotMutation.mutate(email, {
+      onSuccess: () => {
+        setStep("otp");
+        setOtp(Array(OTP_LENGTH).fill(""));
+        setResendCooldown(60);
       },
-    );
+      onError: (err) => {
+        setError(getApiError(err));
+      },
+    });
   };
 
+  /** Step 2 — verify OTP */
   const handleVerifyOtp = (e) => {
     e?.preventDefault();
     setError("");
@@ -107,13 +101,10 @@ export default function LoginPage() {
       { email, otp: otpCode },
       {
         onSuccess: (data) => {
-          if (data?.auth) {
-            // Set remember-me preference BEFORE storing tokens
-            // so they go into the correct storage.
-            setRememberMe(rememberMe);
-            storeTokens(data.auth);
-            navigate("/");
-          }
+          // The server returns a short-lived reset token we must use in the next step.
+          // Backend field name is "resettoken" (all lowercase).
+          setResetToken(data?.resettoken ?? "");
+          setStep("reset");
         },
         onError: (err) => {
           setError(getApiError(err, "invalid_otp"));
@@ -124,6 +115,35 @@ export default function LoginPage() {
     );
   };
 
+  /** Step 3 — reset password */
+  const handleResetPassword = (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (newPassword.length < 6) {
+      setError(
+        t("password_too_short", "Password must be at least 6 characters"),
+      );
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError(t("passwords_dont_match", "Passwords do not match"));
+      return;
+    }
+
+    resetMutation.mutate(
+      { email, token: resetToken, newPassword },
+      {
+        onSuccess: () => setStep("success"),
+        onError: (err) => {
+          setError(getApiError(err));
+        },
+      },
+    );
+  };
+
+  /** Resend OTP */
   const handleResendOtp = () => {
     if (resendCooldown > 0 || resendOtpMutation.isPending) return;
 
@@ -135,8 +155,9 @@ export default function LoginPage() {
     });
   };
 
-  const handleBackToCredentials = () => {
-    setStep("credentials");
+  /** Change email — go back to step 1 */
+  const handleChangeEmail = () => {
+    setStep("email");
     setOtp(Array(OTP_LENGTH).fill(""));
     setError("");
   };
@@ -144,19 +165,16 @@ export default function LoginPage() {
   // ─── OTP Input Handlers ─────────────────────────────────────────────────────
 
   const handleOtpChange = (index, value) => {
-    // Accept only digits
     if (value && !/^\d$/.test(value)) return;
 
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Auto-focus next input
     if (value && index < OTP_LENGTH - 1) {
       otpRefs.current[index + 1]?.focus();
     }
 
-    // Auto-submit when all digits are filled
     if (value && index === OTP_LENGTH - 1 && newOtp.every((d) => d !== "")) {
       setTimeout(() => handleVerifyOtp(), 50);
     }
@@ -188,6 +206,50 @@ export default function LoginPage() {
     }
   };
 
+  // ─── Step titles ────────────────────────────────────────────────────────────
+
+  const stepConfig = {
+    email: {
+      icon: <Mail className="h-8 w-8 text-red-500" />,
+      title: t("forgot_password", "Forgot Password"),
+      subtitle: t(
+        "forgot_password_desc",
+        "Enter your email and we will send you a verification code",
+      ),
+    },
+    otp: {
+      icon: <ShieldCheck className="h-8 w-8 text-red-500" />,
+      title: t("enter_verification_code", "Enter Verification Code"),
+      subtitle: (
+        <>
+          {t("otp_sent_to", "We sent a verification code to")}
+          <br />
+          <span className="font-medium text-gray-700 dark:text-gray-300">
+            {email}
+          </span>
+        </>
+      ),
+    },
+    reset: {
+      icon: <KeyRound className="h-8 w-8 text-red-500" />,
+      title: t("set_new_password", "Set New Password"),
+      subtitle: t(
+        "set_new_password_desc",
+        "Your new password must be different from previously used passwords",
+      ),
+    },
+    success: {
+      icon: <CheckCircle2 className="h-8 w-8 text-green-500" />,
+      title: t("password_reset_success", "Password Reset Successful"),
+      subtitle: t(
+        "password_reset_success_desc",
+        "Your password has been reset successfully. You can now log in with your new password.",
+      ),
+    },
+  };
+
+  const current = stepConfig[step];
+
   // ─── Render ─────────────────────────────────────────────────────────────────
   return (
     <div
@@ -213,7 +275,6 @@ export default function LoginPage() {
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           className="absolute -top-[10%] -right-[10%] w-[60%] h-[60%] rounded-full bg-red-100 dark:bg-red-950/30 mix-blend-multiply dark:mix-blend-lighten filter blur-3xl"
         />
-
         <motion.div
           animate={{
             scale: [1, 1.1, 1],
@@ -238,6 +299,7 @@ export default function LoginPage() {
         className="w-full max-w-md bg-white dark:bg-[#171921] rounded-2xl shadow-xl border border-gray-100 dark:border-[#262833] overflow-hidden relative z-10"
       >
         <div className="p-8 pb-6">
+          {/* Header */}
           <div className="text-center mb-8">
             <motion.div
               initial={{ scale: 0 }}
@@ -258,42 +320,20 @@ export default function LoginPage() {
             </motion.div>
 
             <AnimatePresence mode="wait">
-              {step === "credentials" ? (
-                <motion.div
-                  key="credentials-header"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {t("welcome_back", "Welcome Back")}
-                  </h1>
-                  <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">
-                    {t(
-                      "enter_credentials",
-                      "Enter your credentials to access your account",
-                    )}
-                  </p>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="otp-header"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {t("verify_identity", "Verify Your Identity")}
-                  </h1>
-                  <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">
-                    {t("otp_sent_to", "We sent a verification code to")}
-                    <br />
-                    <span className="font-medium text-gray-700 dark:text-gray-300">
-                      {email}
-                    </span>
-                  </p>
-                </motion.div>
-              )}
+              <motion.div
+                key={step}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <div className="flex justify-center mb-2">{current.icon}</div>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  {current.title}
+                </h1>
+                <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">
+                  {current.subtitle}
+                </p>
+              </motion.div>
             </AnimatePresence>
           </div>
 
@@ -313,15 +353,15 @@ export default function LoginPage() {
           </AnimatePresence>
 
           <AnimatePresence mode="wait">
-            {/* ─── Step 1: Credentials ──────────────────────────────────────── */}
-            {step === "credentials" && (
+            {/* ─── Step 1: Enter Email ─────────────────────────────────────── */}
+            {step === "email" && (
               <motion.form
-                key="credentials-form"
+                key="email-form"
                 initial={{ opacity: 0, x: isRtl ? 20 : -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: isRtl ? -20 : 20 }}
                 transition={{ duration: 0.3 }}
-                onSubmit={handleLogin}
+                onSubmit={handleSendCode}
                 className="space-y-5"
               >
                 <div className="space-y-1.5">
@@ -355,98 +395,28 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label
-                      htmlFor="password"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                      {t("password", "Password")}
-                    </label>
-                    <Link
-                      to="/forgot-password"
-                      className="text-sm font-medium text-red-600 hover:text-red-700 hover:underline"
-                    >
-                      {t("forgot_password", "Forgot password?")}
-                    </Link>
-                  </div>
-                  <div className="relative group">
-                    <div
-                      className={cn(
-                        "absolute inset-y-0 flex items-center pointer-events-none transition-colors group-focus-within:text-red-500",
-                        isRtl ? "right-0 pr-3" : "left-0 pl-3",
-                      )}
-                    >
-                      <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className={cn(
-                        "block w-full py-2.5 border border-gray-300 dark:border-[#262833] rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all bg-gray-50 dark:bg-[#1c1e27] dark:text-gray-200 focus:bg-white dark:focus:bg-[#22242e] outline-none",
-                        isRtl ? "pr-10 pl-10" : "pl-10 pr-10",
-                      )}
-                      placeholder="••••••••"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className={cn(
-                        "absolute inset-y-0 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none transition-colors",
-                        isRtl ? "left-0 pl-3" : "right-0 pr-3",
-                      )}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-5 w-5" />
-                      ) : (
-                        <Eye className="h-5 w-5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    id="remember-me"
-                    name="remember-me"
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMeChecked(e.target.checked)}
-                    className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded cursor-pointer accent-red-600"
-                  />
-                  <label
-                    htmlFor="remember-me"
-                    className={cn(
-                      "block text-sm text-gray-700 dark:text-gray-300 cursor-pointer select-none",
-                      isRtl ? "mr-2" : "ml-2",
-                    )}
-                  >
-                    {t("remember_me", "Remember me for 30 days")}
-                  </label>
-                </div>
-
                 <button
                   type="submit"
                   disabled={isLoading}
                   className={clsx(
-                    "w-full flex items-center justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed mt-2",
+                    "w-full flex items-center justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed",
                     isLoading && "opacity-75 cursor-wait",
                   )}
                 >
                   {isLoading ? (
                     <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <span className="flex items-center gap-2">
-                      {t("signin", "Sign In")}{" "}
-                      <ArrowRight
-                        className={cn("h-4 w-4", isRtl && "rotate-180")}
-                      />
-                    </span>
+                    t("send_code", "Send Verification Code")
                   )}
                 </button>
+
+                <Link
+                  to="/login"
+                  className="w-full flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                >
+                  <ArrowLeft className={cn("h-4 w-4", isRtl && "rotate-180")} />
+                  {t("back_to_login", "Back to login")}
+                </Link>
               </motion.form>
             )}
 
@@ -461,10 +431,6 @@ export default function LoginPage() {
                 onSubmit={handleVerifyOtp}
                 className="space-y-6"
               >
-                <div className="flex justify-center items-center mb-2">
-                  <ShieldCheck className="h-8 w-8 text-red-500" />
-                </div>
-
                 {/* OTP Inputs */}
                 <div className="flex justify-center gap-2" dir="ltr">
                   {otp.map((digit, index) => (
@@ -522,16 +488,167 @@ export default function LoginPage() {
                   )}
                 </button>
 
-                {/* Back button */}
+                {/* Change email */}
                 <button
                   type="button"
-                  onClick={handleBackToCredentials}
+                  onClick={handleChangeEmail}
                   className="w-full flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
                 >
                   <ArrowLeft className={cn("h-4 w-4", isRtl && "rotate-180")} />
-                  {t("back_to_login", "Back to login")}
+                  {t("change_email", "Change email")}
                 </button>
               </motion.form>
+            )}
+
+            {/* ─── Step 3: New Password ────────────────────────────────────── */}
+            {step === "reset" && (
+              <motion.form
+                key="reset-form"
+                initial={{ opacity: 0, x: isRtl ? -20 : 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: isRtl ? 20 : -20 }}
+                transition={{ duration: 0.3 }}
+                onSubmit={handleResetPassword}
+                className="space-y-5"
+              >
+                {/* New Password */}
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="new-password"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    {t("new_password", "New Password")}
+                  </label>
+                  <div className="relative group">
+                    <div
+                      className={cn(
+                        "absolute inset-y-0 flex items-center pointer-events-none transition-colors group-focus-within:text-red-500",
+                        isRtl ? "right-0 pr-3" : "left-0 pl-3",
+                      )}
+                    >
+                      <Lock className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      id="new-password"
+                      type={showNewPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className={cn(
+                        "block w-full py-2.5 border border-gray-300 dark:border-[#262833] rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all bg-gray-50 dark:bg-[#1c1e27] dark:text-gray-200 focus:bg-white dark:focus:bg-[#22242e] outline-none",
+                        isRtl ? "pr-10 pl-10" : "pl-10 pr-10",
+                      )}
+                      placeholder="••••••••"
+                      minLength={6}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className={cn(
+                        "absolute inset-y-0 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none transition-colors",
+                        isRtl ? "left-0 pl-3" : "right-0 pr-3",
+                      )}
+                    >
+                      {showNewPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Confirm Password */}
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="confirm-password"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    {t("confirm_password", "Confirm Password")}
+                  </label>
+                  <div className="relative group">
+                    <div
+                      className={cn(
+                        "absolute inset-y-0 flex items-center pointer-events-none transition-colors group-focus-within:text-red-500",
+                        isRtl ? "right-0 pr-3" : "left-0 pl-3",
+                      )}
+                    >
+                      <Lock className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      id="confirm-password"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className={cn(
+                        "block w-full py-2.5 border border-gray-300 dark:border-[#262833] rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all bg-gray-50 dark:bg-[#1c1e27] dark:text-gray-200 focus:bg-white dark:focus:bg-[#22242e] outline-none",
+                        isRtl ? "pr-10 pl-10" : "pl-10 pr-10",
+                      )}
+                      placeholder="••••••••"
+                      minLength={6}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      className={cn(
+                        "absolute inset-y-0 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none transition-colors",
+                        isRtl ? "left-0 pl-3" : "right-0 pr-3",
+                      )}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={clsx(
+                    "w-full flex items-center justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed",
+                    isLoading && "opacity-75 cursor-wait",
+                  )}
+                >
+                  {isLoading ? (
+                    <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    t("reset_password", "Reset Password")
+                  )}
+                </button>
+              </motion.form>
+            )}
+
+            {/* ─── Step 4: Success ─────────────────────────────────────────── */}
+            {step === "success" && (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                className="text-center space-y-5"
+              >
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                  className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-green-50 dark:bg-green-950/40"
+                >
+                  <CheckCircle2 className="h-8 w-8 text-green-500" />
+                </motion.div>
+
+                <Link
+                  to="/login"
+                  className="w-full flex items-center justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all"
+                >
+                  {t("go_to_login", "Go to Login")}
+                </Link>
+              </motion.div>
             )}
           </AnimatePresence>
         </div>

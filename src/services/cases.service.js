@@ -1,4 +1,4 @@
-import axiosInstance from '@/lib/axiosInstance';
+import axiosInstance from "@/lib/axiosInstance";
 
 /**
  * Cases service — CRUD operations for the /cases resource.
@@ -9,7 +9,7 @@ import axiosInstance from '@/lib/axiosInstance';
  * @returns {Promise<{ data: object[], total: number }>}
  */
 export const getCases = async (params = {}) => {
-  const { data } = await axiosInstance.get('/cases', { params });
+  const { data } = await axiosInstance.get("/cases", { params });
   return data;
 };
 
@@ -27,7 +27,7 @@ export const getCaseById = async (id) => {
  * @returns {Promise<object>}
  */
 export const createCase = async (payload) => {
-  const { data } = await axiosInstance.post('/cases', payload);
+  const { data } = await axiosInstance.post("/cases", payload);
   return data;
 };
 

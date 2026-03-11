@@ -1,4 +1,4 @@
-import axiosInstance from '@/lib/axiosInstance';
+import axiosInstance from "@/lib/axiosInstance";
 
 /**
  * Donations service — CRUD operations for the /donations resource.
@@ -9,7 +9,7 @@ import axiosInstance from '@/lib/axiosInstance';
  * @returns {Promise<{ data: object[], total: number }>}
  */
 export const getDonations = async (params = {}) => {
-  const { data } = await axiosInstance.get('/donations', { params });
+  const { data } = await axiosInstance.get("/donations", { params });
   return data;
 };
 
@@ -27,7 +27,7 @@ export const getDonationById = async (id) => {
  * @returns {Promise<object>}
  */
 export const createDonation = async (payload) => {
-  const { data } = await axiosInstance.post('/donations', payload);
+  const { data } = await axiosInstance.post("/donations", payload);
   return data;
 };
 
