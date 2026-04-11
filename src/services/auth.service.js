@@ -6,6 +6,10 @@ import {
   broadcastLogout,
 } from "@/lib/sessionManager";
 
+// Backend may wrap payloads as: { statusCode, message, traceId, value }.
+// Return `value` when present so callers can use one consistent shape.
+const unwrapApiEnvelope = (data) => data?.value ?? data;
+
 /**
  * Auth service — maps to /api/Auth endpoints.
  *
@@ -23,7 +27,7 @@ import {
 // ─── Login ───────────────────────────────────────────────────────────────────
 
 /**
- * POST /api/Auth/login
+ * POST /api/Auth/Adminlogin
  * @param {{ email: string, password: string }} credentials
  * @returns {Promise<LoginResult>}
  *
@@ -33,12 +37,12 @@ import {
  * On 403 → account locked.
  */
 export const login = async (credentials) => {
-  const { data } = await axiosInstance.post("/Auth/login", credentials);
+  const { data } = await axiosInstance.post("/Auth/Adminlogin", credentials);
 
   // Don't store tokens here — the login page will store them
   // only after OTP verification succeeds.
 
-  return data;
+  return unwrapApiEnvelope(data);
 };
 
 // ─── OTP Verification (Login 2FA) ───────────────────────────────────────────
@@ -54,7 +58,7 @@ export const verifyLoginOtp = async (payload) => {
   // Tokens are stored by the caller (Login.jsx) via sessionManager.storeTokens
   // so the remember-me flag is respected.
 
-  return data;
+  return unwrapApiEnvelope(data);
 };
 
 /**
@@ -66,7 +70,7 @@ export const resendLoginOtp = async (email) => {
   const { data } = await axiosInstance.post(
     `/Auth/login/resend-otp?email=${encodeURIComponent(email)}`,
   );
-  return data;
+  return unwrapApiEnvelope(data);
 };
 
 // ─── Forgot Password ────────────────────────────────────────────────────────
@@ -81,7 +85,7 @@ export const forgotPassword = async (email) => {
   const { data } = await axiosInstance.post(
     `/Auth/password/forgot?email=${encodeURIComponent(email)}`,
   );
-  return data;
+  return unwrapApiEnvelope(data);
 };
 
 /**
@@ -95,7 +99,7 @@ export const verifyPasswordOtp = async (payload) => {
     "/Auth/password/verifyotp",
     payload,
   );
-  return data;
+  return unwrapApiEnvelope(data);
 };
 
 /**
@@ -106,7 +110,7 @@ export const verifyPasswordOtp = async (payload) => {
  */
 export const resetPassword = async (payload) => {
   const { data } = await axiosInstance.post("/Auth/password/reset", payload);
-  return data;
+  return unwrapApiEnvelope(data);
 };
 
 /**
@@ -118,7 +122,7 @@ export const resendPasswordOtp = async (email) => {
   const { data } = await axiosInstance.post(
     `/Auth/password/resend-otp?email=${encodeURIComponent(email)}`,
   );
-  return data;
+  return unwrapApiEnvelope(data);
 };
 
 // ─── Logout ──────────────────────────────────────────────────────────────────
@@ -149,11 +153,13 @@ export const refreshToken = async () => {
     refreshtoken: currentRefreshToken,
   });
 
-  if (data?.auth) {
-    storeTokens(data.auth);
+  const payload = unwrapApiEnvelope(data);
+
+  if (payload?.auth) {
+    storeTokens(payload.auth);
   }
 
-  return data;
+  return payload;
 };
 
 // ─── Current User ────────────────────────────────────────────────────────────
@@ -164,5 +170,5 @@ export const refreshToken = async () => {
  */
 export const getCurrentUser = async () => {
   const { data } = await axiosInstance.get("/Auth/me");
-  return data;
+  return unwrapApiEnvelope(data);
 };
