@@ -28,7 +28,7 @@ const recentDonations = [
   {
     id: "DON-001",
     donor: "Sarah Johnson",
-    amount: "$50.00",
+    amount: "50.00",
     date: "2023-10-15",
     method: "Stripe",
     status: "Completed",
@@ -36,7 +36,7 @@ const recentDonations = [
   {
     id: "DON-002",
     donor: "Michael Smith",
-    amount: "$100.00",
+    amount: "100.00",
     date: "2023-10-14",
     method: "PayPal",
     status: "Completed",
@@ -44,7 +44,7 @@ const recentDonations = [
   {
     id: "DON-003",
     donor: "Emily Davis",
-    amount: "$25.00",
+    amount: "25.00",
     date: "2023-10-14",
     method: "Card",
     status: "Processing",
@@ -52,7 +52,7 @@ const recentDonations = [
   {
     id: "DON-004",
     donor: "James Wilson",
-    amount: "$250.00",
+    amount: "250.00",
     date: "2023-10-13",
     method: "Bank Transfer",
     status: "Completed",
@@ -60,7 +60,7 @@ const recentDonations = [
   {
     id: "DON-005",
     donor: "Jessica Brown",
-    amount: "$10.00",
+    amount: "10.00",
     date: "2023-10-12",
     method: "Stripe",
     status: "Failed",
@@ -68,7 +68,7 @@ const recentDonations = [
   {
     id: "DON-006",
     donor: "David Miller",
-    amount: "$75.00",
+    amount: "75.00",
     date: "2023-10-11",
     method: "Card",
     status: "Completed",
@@ -83,14 +83,14 @@ export default function DonationsPage() {
   const donationStats = [
     {
       title: t("total_donations_stat", "Total Donations"),
-      value: "$12,450",
+      value: "12,450",
       change: "+12.5%",
       icon: DollarSign,
       color: "text-green-600 bg-green-50",
     },
     {
       title: t("avg_donation", "Avg. Donation"),
-      value: "$45.20",
+      value: "45.20",
       change: "+3.2%",
       icon: TrendingUp,
       color: "text-blue-600 bg-blue-50",
@@ -104,7 +104,7 @@ export default function DonationsPage() {
     },
     {
       title: t("this_month", "This Month"),
-      value: "$3,240",
+      value: "3,240",
       change: "+15.1%",
       icon: Calendar,
       color: "text-red-600 bg-red-50",
@@ -211,7 +211,6 @@ export default function DonationsPage() {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fill: "#9ca3af", fontSize: 12 }}
-                  prefix="$"
                 />
                 <Tooltip
                   contentStyle={{
@@ -220,8 +219,9 @@ export default function DonationsPage() {
                     border: "1px solid #f3f4f6",
                     boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                   }}
+                  labelStyle={{ color: "#000" }}
                   itemStyle={{ color: "#16a34a", fontWeight: 600 }}
-                  formatter={(value) => [`$${value}`, t("amount", "Amount")]}
+                  formatter={(value) => [value, t("amount", "Amount")]}
                 />
 
                 <Area

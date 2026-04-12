@@ -80,7 +80,7 @@ export default function AnalyticsPage() {
           </p>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-              $124,500
+              124,500
             </span>
             <span className="text-xs font-semibold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/50 px-1.5 py-0.5 rounded flex items-center">
               <ArrowUp size={12} className="mr-0.5" /> 12.5%
@@ -147,6 +147,7 @@ export default function AnalyticsPage() {
                     border: "1px solid #f3f4f6",
                     boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                   }}
+                  labelStyle={{ color: "#000" }}
                   formatter={(value, name) => [
                     value,
                     t(name === "donations" ? "donations" : "new_users", name),
