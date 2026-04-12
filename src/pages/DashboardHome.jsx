@@ -40,7 +40,7 @@ export default function DashboardHome() {
       user: "Sarah Johnson",
       action: t("activity_donated", "Made a donation"),
       time: "2 min ago",
-      amount: "$50.00",
+      amount: "50.00",
     },
     {
       id: 2,
@@ -54,7 +54,7 @@ export default function DashboardHome() {
       user: "Emily Davis",
       action: t("activity_donated", "Made a donation"),
       time: "1 hour ago",
-      amount: "$25.00",
+      amount: "25.00",
     },
     {
       id: 4,
@@ -97,7 +97,7 @@ export default function DashboardHome() {
     },
     {
       title: t("total_donations", "Total Donations"),
-      value: "$14,250",
+      value: "14,250",
       change: "+18.2%",
       trend: "up",
       icon: DollarSign,
@@ -207,6 +207,7 @@ export default function DashboardHome() {
                     border: "1px solid #f3f4f6",
                     boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                   }}
+                  labelStyle={{ color: "#000" }}
                   itemStyle={{ color: "#1f2937" }}
                 />
 
