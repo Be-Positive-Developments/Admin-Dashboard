@@ -48,6 +48,32 @@ const ERROR_CODE_MAP = {
 export const getApiError = (error, fallbackKey = "error_occurred") => {
   const data = error?.response?.data;
   const errorCode = data?.errorCode;
+  const validationErrors = data?.errors;
+
+  // 0. Handle model validation payloads (e.g., ASP.NET `errors` object).
+  if (validationErrors && typeof validationErrors === "object") {
+    const getFieldMessages = (fieldName) => {
+      const key = Object.keys(validationErrors).find(
+        (k) => k.toLowerCase() === fieldName.toLowerCase(),
+      );
+      return key ? validationErrors[key] : undefined;
+    };
+
+    const newPasswordErrors = getFieldMessages("newpassword");
+    if (Array.isArray(newPasswordErrors)) {
+      const hasMinLengthError = newPasswordErrors.some((msg) => {
+        const normalized = String(msg).toLowerCase();
+        return (
+          normalized.includes("minimum length") ||
+          normalized.includes("at least")
+        );
+      });
+
+      if (hasMinLengthError) {
+        return "password_too_short";
+      }
+    }
+  }
 
   // 1. Try to find a translation key via the errorCode.
   if (errorCode && ERROR_CODE_MAP[errorCode]) {

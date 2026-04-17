@@ -14,6 +14,7 @@ import {
   RefreshCw,
   CheckCircle2,
   KeyRound,
+  Lightbulb,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,8 @@ import {
 import { getApiError } from "@/lib/apiErrors";
 
 const OTP_LENGTH = 6;
+const MIN_PASSWORD_LENGTH = 8;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function ForgotPasswordPage() {
   const { t, i18n } = useTranslation();
@@ -39,6 +42,8 @@ export default function ForgotPasswordPage() {
   const [step, setStep] = useState("email"); // 'email' | 'otp' | 'reset' | 'success'
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const [emailFieldError, setEmailFieldError] = useState("");
+  const [showEmailGuidance, setShowEmailGuidance] = useState(false);
 
   // OTP state
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
@@ -51,6 +56,8 @@ export default function ForgotPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showPasswordGuidance, setShowPasswordGuidance] = useState(false);
+  const [passwordLengthError, setPasswordLengthError] = useState(false);
 
   // ─── Mutations ──────────────────────────────────────────────────────────────
   const forgotMutation = useForgotPassword();
@@ -62,6 +69,11 @@ export default function ForgotPasswordPage() {
     forgotMutation.isPending ||
     verifyOtpMutation.isPending ||
     resetMutation.isPending;
+  const remainingPasswordChars = Math.max(
+    0,
+    MIN_PASSWORD_LENGTH - newPassword.length,
+  );
+  const isPasswordLengthValid = remainingPasswordChars === 0;
 
   // ─── Resend cooldown timer ──────────────────────────────────────────────────
   useEffect(() => {
@@ -77,7 +89,20 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setError("");
 
-    forgotMutation.mutate(email, {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setEmailFieldError("auth_email_required");
+      setShowEmailGuidance(true);
+      return;
+    }
+
+    if (!EMAIL_REGEX.test(trimmedEmail)) {
+      setEmailFieldError("auth_email_invalid");
+      setShowEmailGuidance(true);
+      return;
+    }
+
+    forgotMutation.mutate(trimmedEmail, {
       onSuccess: () => {
         setStep("otp");
         setOtp(Array(OTP_LENGTH).fill(""));
@@ -120,15 +145,14 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setError("");
 
-    if (newPassword.length < 6) {
-      setError(
-        t("password_too_short", "Password must be at least 6 characters"),
-      );
+    if (newPassword.length < MIN_PASSWORD_LENGTH) {
+      setPasswordLengthError(true);
+      setShowPasswordGuidance(true);
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError(t("passwords_dont_match", "Passwords do not match"));
+      setError("passwords_dont_match");
       return;
     }
 
@@ -362,6 +386,7 @@ export default function ForgotPasswordPage() {
                 exit={{ opacity: 0, x: isRtl ? -20 : 20 }}
                 transition={{ duration: 0.3 }}
                 onSubmit={handleSendCode}
+                noValidate
                 className="space-y-5"
               >
                 <div className="space-y-1.5">
@@ -384,7 +409,11 @@ export default function ForgotPasswordPage() {
                       id="email"
                       type="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onFocus={() => setShowEmailGuidance(true)}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        setEmailFieldError("");
+                      }}
                       className={cn(
                         "block w-full py-2.5 border border-gray-300 dark:border-[#262833] rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all bg-gray-50 dark:bg-[#1c1e27] dark:text-gray-200 focus:bg-white dark:focus:bg-[#22242e] outline-none",
                         isRtl ? "pr-10 pl-3" : "pl-10 pr-3",
@@ -393,6 +422,42 @@ export default function ForgotPasswordPage() {
                       required
                     />
                   </div>
+
+                  <AnimatePresence>
+                    {(showEmailGuidance || email || emailFieldError) && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        className={cn(
+                          "mt-2 rounded-lg border px-3 py-2 text-xs flex items-start gap-2",
+                          emailFieldError
+                            ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300 dark:border-red-900"
+                            : email && EMAIL_REGEX.test(email.trim())
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900"
+                              : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900",
+                        )}
+                      >
+                        {emailFieldError ? (
+                          <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                        ) : email && EMAIL_REGEX.test(email.trim()) ? (
+                          <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
+                        ) : (
+                          <Lightbulb className="h-4 w-4 shrink-0 mt-0.5" />
+                        )}
+                        <span>
+                          {emailFieldError
+                            ? t(emailFieldError)
+                            : email && EMAIL_REGEX.test(email.trim())
+                              ? t("auth_email_ready", "Email looks good.")
+                              : t(
+                                  "auth_email_hint",
+                                  "Use your account email to continue.",
+                                )}
+                        </span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 <button
@@ -509,6 +574,7 @@ export default function ForgotPasswordPage() {
                 exit={{ opacity: 0, x: isRtl ? 20 : -20 }}
                 transition={{ duration: 0.3 }}
                 onSubmit={handleResetPassword}
+                noValidate
                 className="space-y-5"
               >
                 {/* New Password */}
@@ -532,13 +598,18 @@ export default function ForgotPasswordPage() {
                       id="new-password"
                       type={showNewPassword ? "text" : "password"}
                       value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
+                      onFocus={() => setShowPasswordGuidance(true)}
+                      onChange={(e) => {
+                        setNewPassword(e.target.value);
+                        if (passwordLengthError && e.target.value.length >= MIN_PASSWORD_LENGTH) {
+                          setPasswordLengthError(false);
+                        }
+                      }}
                       className={cn(
                         "block w-full py-2.5 border border-gray-300 dark:border-[#262833] rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all bg-gray-50 dark:bg-[#1c1e27] dark:text-gray-200 focus:bg-white dark:focus:bg-[#22242e] outline-none",
                         isRtl ? "pr-10 pl-10" : "pl-10 pr-10",
                       )}
                       placeholder="••••••••"
-                      minLength={6}
                       required
                     />
                     <button
@@ -556,6 +627,44 @@ export default function ForgotPasswordPage() {
                       )}
                     </button>
                   </div>
+
+                  <AnimatePresence>
+                    {(showPasswordGuidance || newPassword || passwordLengthError) && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        className={cn(
+                          "mt-2 rounded-lg border px-3 py-2 text-xs flex items-start gap-2",
+                          passwordLengthError
+                            ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300 dark:border-red-900"
+                            : isPasswordLengthValid
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900"
+                              : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900",
+                        )}
+                      >
+                        {isPasswordLengthValid ? (
+                          <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
+                        ) : (
+                          <Lightbulb className="h-4 w-4 shrink-0 mt-0.5" />
+                        )}
+                        <span>
+                          {isPasswordLengthValid
+                            ? t("password_length_ready", "Perfect length. You can continue.")
+                            : passwordLengthError
+                              ? t("password_too_short", "Password must be at least 8 characters.")
+                              : t(
+                                  "password_length_remaining",
+                                  "Add {{count}} more character(s) to reach {{min}}.",
+                                  {
+                                    count: remainingPasswordChars,
+                                    min: MIN_PASSWORD_LENGTH,
+                                  },
+                                )}
+                        </span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Confirm Password */}
@@ -585,7 +694,7 @@ export default function ForgotPasswordPage() {
                         isRtl ? "pr-10 pl-10" : "pl-10 pr-10",
                       )}
                       placeholder="••••••••"
-                      minLength={6}
+                      minLength={MIN_PASSWORD_LENGTH}
                       required
                     />
                     <button
