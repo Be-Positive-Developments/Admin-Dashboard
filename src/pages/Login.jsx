@@ -13,6 +13,8 @@ import {
   AlertCircle,
   ShieldCheck,
   RefreshCw,
+  CheckCircle2,
+  Lightbulb,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { cn } from "@/lib/utils";
@@ -27,6 +29,7 @@ import {
 } from "@/hooks/queries/useAuth";
 
 const OTP_LENGTH = 6;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginPage() {
   const { t, i18n } = useTranslation();
@@ -41,6 +44,14 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [rememberMe, setRememberMeChecked] = useState(false);
+  const [loginFieldErrors, setLoginFieldErrors] = useState({
+    email: "",
+    password: "",
+  });
+  const [showFieldGuidance, setShowFieldGuidance] = useState({
+    email: false,
+    password: false,
+  });
 
   // OTP state
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
@@ -63,9 +74,33 @@ export default function LoginPage() {
 
   // ─── Handlers ───────────────────────────────────────────────────────────────
 
+  const validateCredentials = () => {
+    const nextErrors = { email: "", password: "" };
+
+    if (!email.trim()) {
+      nextErrors.email = "auth_email_required";
+    } else if (!EMAIL_REGEX.test(email.trim())) {
+      nextErrors.email = "auth_email_invalid";
+    }
+
+    if (!password) {
+      nextErrors.password = "auth_password_required";
+    }
+
+    return nextErrors;
+  };
+
   const handleLogin = (e) => {
     e.preventDefault();
     setError("");
+
+    const nextErrors = validateCredentials();
+    setLoginFieldErrors(nextErrors);
+
+    if (nextErrors.email || nextErrors.password) {
+      setShowFieldGuidance({ email: true, password: true });
+      return;
+    }
 
     loginMutation.mutate(
       { email, password },
@@ -322,6 +357,7 @@ export default function LoginPage() {
                 exit={{ opacity: 0, x: isRtl ? -20 : 20 }}
                 transition={{ duration: 0.3 }}
                 onSubmit={handleLogin}
+                noValidate
                 className="space-y-5"
               >
                 <div className="space-y-1.5">
@@ -344,7 +380,20 @@ export default function LoginPage() {
                       id="email"
                       type="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onFocus={() =>
+                        setShowFieldGuidance((prev) => ({
+                          ...prev,
+                          email: true,
+                        }))
+                      }
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setEmail(value);
+                        setLoginFieldErrors((prev) => ({
+                          ...prev,
+                          email: "",
+                        }));
+                      }}
                       className={cn(
                         "block w-full py-2.5 border border-gray-300 dark:border-[#262833] rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all bg-gray-50 dark:bg-[#1c1e27] dark:text-gray-200 focus:bg-white dark:focus:bg-[#22242e] outline-none",
                         isRtl ? "pr-10 pl-3" : "pl-10 pr-3",
@@ -353,6 +402,42 @@ export default function LoginPage() {
                       required
                     />
                   </div>
+
+                  <AnimatePresence>
+                    {(showFieldGuidance.email || email || loginFieldErrors.email) && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        className={cn(
+                          "mt-2 rounded-lg border px-3 py-2 text-xs flex items-start gap-2",
+                          loginFieldErrors.email
+                            ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300 dark:border-red-900"
+                            : email && EMAIL_REGEX.test(email.trim())
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900"
+                              : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900",
+                        )}
+                      >
+                        {loginFieldErrors.email ? (
+                          <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                        ) : email && EMAIL_REGEX.test(email.trim()) ? (
+                          <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
+                        ) : (
+                          <Lightbulb className="h-4 w-4 shrink-0 mt-0.5" />
+                        )}
+                        <span>
+                          {loginFieldErrors.email
+                            ? t(loginFieldErrors.email)
+                            : email && EMAIL_REGEX.test(email.trim())
+                              ? t("auth_email_ready", "Email looks good.")
+                              : t(
+                                  "auth_email_hint",
+                                  "Use your account email to continue.",
+                                )}
+                        </span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 <div className="space-y-1.5">
@@ -383,7 +468,19 @@ export default function LoginPage() {
                       id="password"
                       type={showPassword ? "text" : "password"}
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onFocus={() =>
+                        setShowFieldGuidance((prev) => ({
+                          ...prev,
+                          password: true,
+                        }))
+                      }
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        setLoginFieldErrors((prev) => ({
+                          ...prev,
+                          password: "",
+                        }));
+                      }}
                       className={cn(
                         "block w-full py-2.5 border border-gray-300 dark:border-[#262833] rounded-lg focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all bg-gray-50 dark:bg-[#1c1e27] dark:text-gray-200 focus:bg-white dark:focus:bg-[#22242e] outline-none",
                         isRtl ? "pr-10 pl-10" : "pl-10 pr-10",
@@ -406,6 +503,42 @@ export default function LoginPage() {
                       )}
                     </button>
                   </div>
+
+                  <AnimatePresence>
+                    {(showFieldGuidance.password || password || loginFieldErrors.password) && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        className={cn(
+                          "mt-2 rounded-lg border px-3 py-2 text-xs flex items-start gap-2",
+                          loginFieldErrors.password
+                            ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300 dark:border-red-900"
+                            : password
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900"
+                              : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900",
+                        )}
+                      >
+                        {loginFieldErrors.password ? (
+                          <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                        ) : password ? (
+                          <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
+                        ) : (
+                          <Lightbulb className="h-4 w-4 shrink-0 mt-0.5" />
+                        )}
+                        <span>
+                          {loginFieldErrors.password
+                            ? t(loginFieldErrors.password)
+                            : password
+                              ? t("auth_password_ready", "Password entered.")
+                              : t(
+                                  "auth_password_hint",
+                                  "Enter your account password.",
+                                )}
+                        </span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 <div className="flex items-center">
