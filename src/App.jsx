@@ -8,8 +8,7 @@ import { registerTab } from "@/lib/sessionManager";
 
 export default function App() {
   // Register this tab for multi-tab session tracking.
-  // On unmount / browser close the cleanup decrements the tab counter
-  // and fires a logout beacon when the last tab closes (if not "remember me").
+  // beforeunload handles tab-count updates during actual tab close/refresh.
   useEffect(() => {
     const cleanup = registerTab();
     return cleanup;

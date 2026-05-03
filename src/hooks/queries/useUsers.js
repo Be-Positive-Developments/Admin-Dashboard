@@ -21,7 +21,7 @@ export const userKeys = {
 
 /**
  * Fetch a paginated / filtered list of users.
- * @param {{ page?: number, limit?: number, search?: string }} params
+ * @param {{ page?: number, pageSize?: number, search?: string, userType?: string, isActive?: boolean }} params
  */
 export const useGetUsers = (params = {}) => {
   return useQuery({
