@@ -4,16 +4,13 @@
  *
  * Remember Me ON  → tokens in localStorage (persist across browser restarts).
  * Remember Me OFF → tokens in sessionStorage (per-tab), with a BroadcastChannel
- *                   to share the token with new tabs, and a tab counter so we
- *                   can call the logout endpoint when the LAST tab closes.
+ *                   to share the token with new tabs, and a tab counter for
+ *                   cross-tab session bookkeeping.
  *
  * Key concepts:
  * - `rememberMe` flag is always in localStorage so every tab can read it.
  * - `bp_tab_count` in localStorage tracks how many of our tabs are open.
  * - BroadcastChannel "bp_session" syncs the sessionStorage token to new tabs.
- * - On last-tab close (tabCount → 0 + rememberMe=false), we fire a
- *   `navigator.sendBeacon` to POST /Auth/logout so the server destroys the
- *   refresh token. Regular fetch won't complete during `beforeunload`.
  */
 
 const TOKEN_KEY = "token";
@@ -148,16 +145,6 @@ const initChannel = () => {
   };
 };
 
-/** Broadcast current token to sibling tabs (used for new-tab token sharing). */
-const broadcastToken = () => {
-  if (!channel) return;
-  const t = sessionStorage.getItem(TOKEN_KEY);
-  const r = sessionStorage.getItem(REFRESH_KEY);
-  if (t) {
-    channel.postMessage({ type: "token_response", token: t, refreshToken: r });
-  }
-};
-
 /**
  * Broadcast a login event so all open tabs sync tokens and redirect to the
  * dashboard. Works for both remember-me (localStorage) and session-only
@@ -211,19 +198,14 @@ export const registerTab = () => {
 
   // Listen for the tab closing.
   const handleBeforeUnload = () => {
-    const count = getTabCount() - 1;
-    setTabCount(count);
+    const count = Math.max(0, getTabCount() - 1);
 
-    // Last tab closing + session-only mode → fire logout beacon.
-    if (count <= 0 && !isRememberMe()) {
-      const token = sessionStorage.getItem(TOKEN_KEY);
-      if (token) {
-        logoutBeacon(token);
-      }
-      // Clean up the tab-count key too.
+    if (count <= 0) {
       localStorage.removeItem(TAB_COUNT_KEY);
-      localStorage.removeItem(REMEMBER_KEY);
+      return;
     }
+
+    setTabCount(count);
   };
 
   // Fallback for rememberMe=true: the native "storage" event fires in every
@@ -242,36 +224,5 @@ export const registerTab = () => {
   return () => {
     window.removeEventListener("beforeunload", handleBeforeUnload);
     window.removeEventListener("storage", handleStorageLogin);
-    handleBeforeUnload(); // decrement count if React unmounts without unload
   };
-};
-
-// ─── Beacon logout ───────────────────────────────────────────────────────────
-
-/**
- * Fire-and-forget POST to /Auth/logout using sendBeacon (works during
- * `beforeunload` unlike regular fetch). Falls back to keepalive fetch.
- */
-const logoutBeacon = (token) => {
-  const baseUrl = import.meta.env.VITE_BASE_URL || "";
-  const url = `${baseUrl}/Auth/logout`;
-
-  // sendBeacon can only send blobs / FormData — we send an empty JSON body
-  // and put the Authorization in a Blob header trick. Unfortunately sendBeacon
-  // doesn't support custom headers, so we fall back to fetch with keepalive.
-  try {
-    const success = fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: "{}",
-      keepalive: true, // ensures the request outlives the page
-    });
-    // We intentionally don't await — this is fire-and-forget.
-    void success;
-  } catch {
-    // Best-effort. If this fails the server token will expire via TTL.
-  }
 };
