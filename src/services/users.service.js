@@ -8,7 +8,10 @@ const unwrapPayload = (payload) => {
   const statusCode = payload?.statusCode ?? payload?.StatusCode;
   const success = payload?.success ?? payload?.Success;
 
-  if ((typeof statusCode === "number" && statusCode >= 400) || success === false) {
+  if (
+    (typeof statusCode === "number" && statusCode >= 400) ||
+    success === false
+  ) {
     return payload;
   }
 
@@ -138,9 +141,13 @@ export const createUser = async (payload) => {
  * @returns {Promise<object>}
  */
 export const updateUser = async (id, payload) => {
-  const { data } = await axiosInstance.put("/Admin/update", payload, {
-    params: { id },
-  });
+  const hasId = id !== undefined && id !== null;
+  const requestConfig = hasId ? { params: { id } } : undefined;
+  const { data } = await axiosInstance.put(
+    "/Admin/update",
+    payload,
+    requestConfig,
+  );
   return unwrapPayload(data);
 };
 

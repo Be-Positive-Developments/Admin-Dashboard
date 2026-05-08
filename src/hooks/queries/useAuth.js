@@ -8,6 +8,7 @@ import {
   verifyPasswordOtp,
   resetPassword,
   resendPasswordOtp,
+  changeAdminPassword,
   logout,
   getCurrentUser,
 } from "@/services/auth.service";
@@ -25,11 +26,12 @@ export const authKeys = {
  * Fetch the currently authenticated user.
  * Only runs when a token exists in localStorage.
  */
-export const useCurrentUser = () => {
+export const useCurrentUser = (options = {}) => {
   return useQuery({
+    ...options,
     queryKey: authKeys.me,
     queryFn: getCurrentUser,
-    enabled: isAuthenticated(),
+    enabled: isAuthenticated() && (options.enabled ?? true),
   });
 };
 
@@ -84,6 +86,13 @@ export const useResetPassword = () => {
  */
 export const useResendPasswordOtp = () => {
   return useMutation({ mutationFn: resendPasswordOtp });
+};
+
+/**
+ * Change the current admin password.
+ */
+export const useChangeAdminPassword = () => {
+  return useMutation({ mutationFn: changeAdminPassword });
 };
 
 /**

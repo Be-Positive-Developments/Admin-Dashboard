@@ -404,7 +404,9 @@ export default function LoginPage() {
                   </div>
 
                   <AnimatePresence>
-                    {(showFieldGuidance.email || email || loginFieldErrors.email) && (
+                    {(showFieldGuidance.email ||
+                      email ||
+                      loginFieldErrors.email) && (
                       <motion.div
                         initial={{ opacity: 0, y: -4 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -505,7 +507,9 @@ export default function LoginPage() {
                   </div>
 
                   <AnimatePresence>
-                    {(showFieldGuidance.password || password || loginFieldErrors.password) && (
+                    {(showFieldGuidance.password ||
+                      password ||
+                      loginFieldErrors.password) && (
                       <motion.div
                         initial={{ opacity: 0, y: -4 }}
                         animate={{ opacity: 1, y: 0 }}
