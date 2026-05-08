@@ -66,6 +66,12 @@ const mapUserTypeToRoleLabel = (userType) => {
   return "User";
 };
 
+const getInitials = (firstName, lastName) => {
+  const first = (firstName || "").trim().charAt(0).toUpperCase();
+  const last = (lastName || "").trim().charAt(0).toUpperCase();
+  return (first + last) || "AD";
+};
+
 export default function SettingsPage() {
   const { t, i18n } = useTranslation();
   useDocumentTitle(t("settings", "Settings"));
@@ -509,7 +515,7 @@ export default function SettingsPage() {
             >
               <div className="flex items-center gap-4 mb-6">
                 <div className="h-20 w-20 rounded-full bg-red-100 dark:bg-red-950/50 flex items-center justify-center text-red-700 dark:text-red-400 text-2xl font-bold">
-                  AD
+                  {getInitials(profileForm.firstName, profileForm.lastName)}
                 </div>
                 <div>
                   <button className="text-sm font-medium text-red-700 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:underline">
