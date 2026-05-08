@@ -7,8 +7,30 @@ import {
 } from "@/lib/sessionManager";
 
 // Backend may wrap payloads as: { statusCode, message, traceId, value }.
-// Return `value` when present so callers can use one consistent shape.
-const unwrapApiEnvelope = (data) => data?.value ?? data;
+// Return the inner payload when present so callers can use one consistent shape.
+const unwrapApiEnvelope = (payload) => {
+  if (!payload || typeof payload !== "object") {
+    return payload;
+  }
+
+  const statusCode = payload?.statusCode ?? payload?.StatusCode;
+  const success = payload?.success ?? payload?.Success;
+
+  if (
+    (typeof statusCode === "number" && statusCode >= 400) ||
+    success === false
+  ) {
+    return payload;
+  }
+
+  return (
+    payload?.data ??
+    payload?.result ??
+    payload?.value ??
+    payload?.results ??
+    payload
+  );
+};
 
 /**
  * Auth service — maps to /api/Auth endpoints.
@@ -125,6 +147,16 @@ export const resendPasswordOtp = async (email) => {
   return unwrapApiEnvelope(data);
 };
 
+/**
+ * PATCH /api/Admin/change-password
+ * @param {{ oldpassword: string, newpassword: string }} payload
+ * @returns {Promise<object>}
+ */
+export const changeAdminPassword = async (payload) => {
+  const { data } = await axiosInstance.patch("/Admin/change-password", payload);
+  return unwrapApiEnvelope(data);
+};
+
 // ─── Logout ──────────────────────────────────────────────────────────────────
 
 /**
@@ -165,10 +197,10 @@ export const refreshToken = async () => {
 // ─── Current User ────────────────────────────────────────────────────────────
 
 /**
- * GET /api/Auth/me
+ * GET /api/Admin/GetCurrentUser
  * @returns {Promise<object>}
  */
 export const getCurrentUser = async () => {
-  const { data } = await axiosInstance.get("/Auth/me");
+  const { data } = await axiosInstance.get("/Admin/GetCurrentUser");
   return unwrapApiEnvelope(data);
 };

@@ -601,7 +601,10 @@ export default function ForgotPasswordPage() {
                       onFocus={() => setShowPasswordGuidance(true)}
                       onChange={(e) => {
                         setNewPassword(e.target.value);
-                        if (passwordLengthError && e.target.value.length >= MIN_PASSWORD_LENGTH) {
+                        if (
+                          passwordLengthError &&
+                          e.target.value.length >= MIN_PASSWORD_LENGTH
+                        ) {
                           setPasswordLengthError(false);
                         }
                       }}
@@ -629,7 +632,9 @@ export default function ForgotPasswordPage() {
                   </div>
 
                   <AnimatePresence>
-                    {(showPasswordGuidance || newPassword || passwordLengthError) && (
+                    {(showPasswordGuidance ||
+                      newPassword ||
+                      passwordLengthError) && (
                       <motion.div
                         initial={{ opacity: 0, y: -4 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -650,9 +655,15 @@ export default function ForgotPasswordPage() {
                         )}
                         <span>
                           {isPasswordLengthValid
-                            ? t("password_length_ready", "Perfect length. You can continue.")
+                            ? t(
+                                "password_length_ready",
+                                "Perfect length. You can continue.",
+                              )
                             : passwordLengthError
-                              ? t("password_too_short", "Password must be at least 8 characters.")
+                              ? t(
+                                  "password_too_short",
+                                  "Password must be at least 8 characters.",
+                                )
                               : t(
                                   "password_length_remaining",
                                   "Add {{count}} more character(s) to reach {{min}}.",

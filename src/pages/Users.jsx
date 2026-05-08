@@ -188,7 +188,8 @@ export default function UsersPage() {
 
   const totalCount = usersResponse?.totalcount ?? users.length;
   const filteredCount = usersResponse?.filteredcount ?? totalCount;
-  const isFiltered = Boolean(debouncedSearchTerm) ||
+  const isFiltered =
+    Boolean(debouncedSearchTerm) ||
     Boolean(mapRoleFilterToUserType(roleFilter));
   const effectiveCount = isFiltered ? filteredCount : totalCount;
   const startItem = effectiveCount > 0 ? (page - 1) * pageSize + 1 : 0;
@@ -371,7 +372,10 @@ export default function UsersPage() {
 
       if (editingUser) {
         if (!fullname) {
-          validationErrors.name = t("full_name_required", "Full name is required.");
+          validationErrors.name = t(
+            "full_name_required",
+            "Full name is required.",
+          );
         }
 
         if (!roleValue) {
@@ -407,7 +411,10 @@ export default function UsersPage() {
         const password = String(formData.get("password") || "").trim();
 
         if (!fullname) {
-          validationErrors.name = t("full_name_required", "Full name is required.");
+          validationErrors.name = t(
+            "full_name_required",
+            "Full name is required.",
+          );
         }
 
         if (!email) {
@@ -429,7 +436,10 @@ export default function UsersPage() {
         }
 
         if (!password) {
-          validationErrors.password = t("password_required", "Password is required.");
+          validationErrors.password = t(
+            "password_required",
+            "Password is required.",
+          );
         } else if (password.length < 6) {
           validationErrors.password = t(
             "password_min_length",
@@ -519,7 +529,9 @@ export default function UsersPage() {
         return;
       }
 
-      toast.error(apiMessage || t("failed_to_save_user", "Failed to save user."));
+      toast.error(
+        apiMessage || t("failed_to_save_user", "Failed to save user."),
+      );
     } finally {
       setIsSavingUser(false);
     }
@@ -900,11 +912,7 @@ export default function UsersPage() {
                   <XCircle size={20} />
                 </button>
               </div>
-              <form
-                onSubmit={handleSave}
-                noValidate
-                className="p-6 space-y-4"
-              >
+              <form onSubmit={handleSave} noValidate className="p-6 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     {t("full_name", "Full Name")}
@@ -940,7 +948,10 @@ export default function UsersPage() {
                         <span>
                           {formErrors.name
                             ? formErrors.name
-                            : t("full_name_hint", "Enter the user's full name.")}
+                            : t(
+                                "full_name_hint",
+                                "Enter the user's full name.",
+                              )}
                         </span>
                       </motion.div>
                     )}
@@ -989,7 +1000,10 @@ export default function UsersPage() {
                           <span>
                             {formErrors.email
                               ? formErrors.email
-                              : t("email_hint", "Enter the user's email address.")}
+                              : t(
+                                  "email_hint",
+                                  "Enter the user's email address.",
+                                )}
                           </span>
                         </motion.div>
                       )}
@@ -1039,7 +1053,10 @@ export default function UsersPage() {
                           <span>
                             {formErrors.phone
                               ? formErrors.phone
-                              : t("phone_hint", "Enter the user's phone number.")}
+                              : t(
+                                  "phone_hint",
+                                  "Enter the user's phone number.",
+                                )}
                           </span>
                         </motion.div>
                       )}
@@ -1087,7 +1104,10 @@ export default function UsersPage() {
                           <span>
                             {formErrors.password
                               ? formErrors.password
-                              : t("password_hint", "Enter the user's password.")}
+                              : t(
+                                  "password_hint",
+                                  "Enter the user's password.",
+                                )}
                           </span>
                         </motion.div>
                       )}
@@ -1112,7 +1132,10 @@ export default function UsersPage() {
                           : "Donor"
                       }
                       onFocus={() =>
-                        setShowFieldGuidance((prev) => ({ ...prev, role: true }))
+                        setShowFieldGuidance((prev) => ({
+                          ...prev,
+                          role: true,
+                        }))
                       }
                       onChange={() => clearFieldError("role")}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-[#262833] rounded-lg focus:ring-red-500 focus:border-red-500 outline-none dark:bg-[#1c1e27] dark:text-gray-200"
@@ -1145,7 +1168,10 @@ export default function UsersPage() {
                           <span>
                             {formErrors.role
                               ? formErrors.role
-                              : t("role_hint", "Choose the right role for this user.")}
+                              : t(
+                                  "role_hint",
+                                  "Choose the right role for this user.",
+                                )}
                           </span>
                         </motion.div>
                       )}
