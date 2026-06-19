@@ -8,6 +8,7 @@ import AnalyticsPage from "@/pages/Analytics";
 import SettingsPage from "@/pages/Settings";
 import ReportsPage from "@/pages/Reports";
 import DonationsPage from "@/pages/Donations";
+import HospitalRequestsPage from "@/pages/HospitalRequests";
 import LoginPage from "@/pages/Login";
 import ForgotPasswordPage from "@/pages/ForgotPassword";
 import NotFound from "@/pages/NotFound";
@@ -32,6 +33,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, Component: DashboardHome },
           { path: "users", Component: UsersPage },
+          { path: "hospital-requests", Component: HospitalRequestsPage },
           { path: "cases", Component: CasesPage },
           { path: "reports", Component: ReportsPage },
           { path: "donations", Component: DonationsPage },
