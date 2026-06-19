@@ -15,6 +15,7 @@ import {
   Search,
   Heart,
   BriefcaseMedical,
+  Building2,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { clsx } from "clsx";
@@ -71,6 +72,11 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
   const navItems = [
     { name: t("dashboard", "Dashboard"), icon: LayoutDashboard, path: "/" },
     { name: t("users", "Users"), icon: Users, path: "/users" },
+    {
+      name: t("hospital_requests", "Hospital Requests"),
+      icon: Building2,
+      path: "/hospital-requests",
+    },
     { name: t("cases", "Cases"), icon: BriefcaseMedical, path: "/cases" },
     { name: t("reports", "Reports"), icon: FileText, path: "/reports" },
     { name: t("donations", "Donations"), icon: Heart, path: "/donations" },
