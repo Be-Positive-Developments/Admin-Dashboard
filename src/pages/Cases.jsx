@@ -61,6 +61,20 @@ const getCasesLoadErrorMessage = (error) => {
   return backendMessage || "An error occurred.";
 };
 
+const isNullableNoMatchError = (error) => {
+  const status = error?.response?.status;
+  const backendMessage =
+    error?.response?.data?.message ??
+    error?.response?.data?.Message ??
+    error?.message ??
+    "";
+
+  return (
+    status === 500 &&
+    String(backendMessage).toLowerCase().includes("nullable object")
+  );
+};
+
 const DEFAULT_PAGE_SIZE = 10;
 
 const getLookupErrorMessage = (error, fallback) => {
@@ -399,7 +413,10 @@ export default function CasesPage() {
     refetch,
   } = useGetCases(apiParams, locale, { enabled: canLoadCases });
 
-  const cases = casesResponse?.requests ?? [];
+  const shouldTreatCasesErrorAsEmpty = isError && isNullableNoMatchError(error);
+  const cases = shouldTreatCasesErrorAsEmpty
+    ? []
+    : (casesResponse?.requests ?? []);
   const totalPages = casesResponse?.totalPages ?? 1;
   const canGoPrevious = page > 1;
   const canGoNext = page < totalPages;
@@ -518,7 +535,7 @@ export default function CasesPage() {
             {t("retry", "Retry")}
           </button>
         </div>
-      ) : isError ? (
+      ) : isError && !shouldTreatCasesErrorAsEmpty ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <AlertCircle size={40} className="text-red-500 mb-4" />
           <p className="text-gray-600 dark:text-gray-400 mb-4 max-w-lg">
