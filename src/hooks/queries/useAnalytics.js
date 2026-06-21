@@ -1,36 +1,51 @@
 import { useQuery } from "@tanstack/react-query";
 import {
-  getAnalytics,
-  getAnalyticsByRange,
+  getAnalyticsSummary,
+  getDonationsTrend,
+  getHospitalsByGovernorate,
+  getBloodTypeDemand,
 } from "@/services/analytics.service";
 
 export const analyticsKeys = {
   all: ["analytics"],
-  overview: () => ["analytics", "overview"],
-  range: (params) => ["analytics", "range", params],
+  summary: () => ["analytics", "summary"],
+  donationsTrend: () => ["analytics", "donations-trend"],
+  hospitalsByGovernorate: () => ["analytics", "hospitals-by-governorate"],
+  bloodTypeDemand: () => ["analytics", "blood-type-demand"],
 };
 
-// ─── Queries ─────────────────────────────────────────────────────────────────
-
-/**
- * Fetch the main dashboard overview analytics.
- */
-export const useGetAnalytics = () => {
+export const useGetAnalyticsSummary = () => {
   return useQuery({
-    queryKey: analyticsKeys.overview(),
-    queryFn: getAnalytics,
+    queryKey: analyticsKeys.summary(),
+    queryFn: getAnalyticsSummary,
   });
 };
 
-/**
- * Fetch analytics for a specific date range.
- * @param {{ startDate: string, endDate: string }} params
- */
-export const useGetAnalyticsByRange = (params) => {
+export const useGetDonationsTrend = () => {
   return useQuery({
-    queryKey: analyticsKeys.range(params),
-    queryFn: () => getAnalyticsByRange(params),
-    // Only run when both dates are provided.
-    enabled: !!(params?.startDate && params?.endDate),
+    queryKey: analyticsKeys.donationsTrend(),
+    queryFn: getDonationsTrend,
   });
+};
+
+export const useGetHospitalsByGovernorate = () => {
+  return useQuery({
+    queryKey: analyticsKeys.hospitalsByGovernorate(),
+    queryFn: getHospitalsByGovernorate,
+  });
+};
+
+export const useGetBloodTypeDemand = () => {
+  return useQuery({
+    queryKey: analyticsKeys.bloodTypeDemand(),
+    queryFn: getBloodTypeDemand,
+  });
+};
+
+/** @deprecated Use useGetAnalyticsSummary */
+export const useGetAnalytics = useGetAnalyticsSummary;
+
+/** @deprecated Not supported by admin API */
+export const useGetAnalyticsByRange = () => {
+  return useGetAnalyticsSummary();
 };

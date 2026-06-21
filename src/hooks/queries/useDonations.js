@@ -1,67 +1,41 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
-  getDonations,
-  getDonationById,
-  createDonation,
-  updateDonation,
-  deleteDonation,
+  getDonors,
+  getDonorById,
+  getDonorStats,
 } from "@/services/donations.service";
 
 export const donationKeys = {
-  all: ["donations"],
-  list: (params) => ["donations", "list", params],
-  detail: (id) => ["donations", "detail", id],
+  all: ["donors"],
+  list: (params) => ["donors", "list", params],
+  detail: (id) => ["donors", "detail", id],
+  stats: () => ["donors", "stats"],
 };
 
-// ─── Queries ─────────────────────────────────────────────────────────────────
-
-export const useGetDonations = (params = {}) => {
+export const useGetDonors = (params = {}, locale = "en") => {
   return useQuery({
     queryKey: donationKeys.list(params),
-    queryFn: () => getDonations(params),
+    queryFn: () => getDonors(params, locale),
   });
 };
 
-export const useGetDonationById = (id) => {
+export const useGetDonorById = (id, locale = "en") => {
   return useQuery({
     queryKey: donationKeys.detail(id),
-    queryFn: () => getDonationById(id),
+    queryFn: () => getDonorById(id, locale),
     enabled: !!id,
   });
 };
 
-// ─── Mutations ───────────────────────────────────────────────────────────────
-
-export const useCreateDonation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: createDonation,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: donationKeys.all });
-    },
+export const useGetDonorStats = () => {
+  return useQuery({
+    queryKey: donationKeys.stats(),
+    queryFn: getDonorStats,
   });
 };
 
-export const useUpdateDonation = (id) => {
-  const queryClient = useQueryClient();
+/** @deprecated Use useGetDonors */
+export const useGetDonations = useGetDonors;
 
-  return useMutation({
-    mutationFn: (payload) => updateDonation(id, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: donationKeys.all });
-      queryClient.invalidateQueries({ queryKey: donationKeys.detail(id) });
-    },
-  });
-};
-
-export const useDeleteDonation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: deleteDonation,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: donationKeys.all });
-    },
-  });
-};
+/** @deprecated Use useGetDonorById */
+export const useGetDonationById = useGetDonorById;
