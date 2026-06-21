@@ -2,6 +2,11 @@
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { useTranslation } from "react-i18next";
 import {
+  useGetAnalyticsSummary,
+  useGetDonationsTrend,
+  useGetBloodTypeDemand,
+} from "@/hooks/queries/useAnalytics";
+import {
   LineChart,
   Line,
   XAxis,
@@ -14,7 +19,13 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { ArrowUp, ArrowDown, Download } from "lucide-react";
+import {
+  ArrowUp,
+  ArrowDown,
+  Download,
+  AlertCircle,
+  RefreshCw,
+} from "lucide-react";
 
 const COLORS = [
   "#ef4444",
@@ -27,30 +38,66 @@ const COLORS = [
   "#6366f1",
 ];
 
+function KpiSkeleton() {
+  return (
+    <div className="bg-white dark:bg-[#171921] p-6 rounded-xl border border-gray-100 dark:border-[#262833] shadow-sm animate-pulse">
+      <div className="h-4 w-40 bg-gray-200 dark:bg-gray-700 rounded" />
+      <div className="mt-4 flex items-baseline gap-2">
+        <div className="h-9 w-24 bg-gray-200 dark:bg-gray-700 rounded" />
+        <div className="h-5 w-14 bg-gray-200 dark:bg-gray-700 rounded" />
+      </div>
+    </div>
+  );
+}
+
+function ChartSkeleton() {
+  return (
+    <div className="h-80 w-full bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+  );
+}
+
+/* eslint-disable react/prop-types */
+function ErrorPanel({ message, onRetry, t }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-10 text-center">
+      <AlertCircle size={32} className="text-red-500 mb-3" />
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{message}</p>
+      <button
+        type="button"
+        onClick={onRetry}
+        className="inline-flex items-center gap-2 text-sm text-red-700 dark:text-red-400 hover:underline"
+      >
+        <RefreshCw size={14} />
+        {t("retry", "Retry")}
+      </button>
+    </div>
+  );
+}
+
 export default function AnalyticsPage() {
   const { t } = useTranslation();
   useDocumentTitle(t("analytics", "Analytics"));
 
-  const data = [
-    { name: t("mon", "Mon"), donations: 4000, newUsers: 2400 },
-    { name: t("tue", "Tue"), donations: 3000, newUsers: 1398 },
-    { name: t("wed", "Wed"), donations: 2000, newUsers: 9800 },
-    { name: t("thu", "Thu"), donations: 2780, newUsers: 3908 },
-    { name: t("fri", "Fri"), donations: 1890, newUsers: 4800 },
-    { name: t("sat", "Sat"), donations: 2390, newUsers: 3800 },
-    { name: t("sun", "Sun"), donations: 3490, newUsers: 4300 },
-  ];
+  const {
+    data: kpis = [],
+    isLoading: kpisLoading,
+    isError: kpisError,
+    refetch: refetchKpis,
+  } = useGetAnalyticsSummary();
 
-  const bloodTypeData = [
-    { name: "A+", value: 400 },
-    { name: "O+", value: 300 },
-    { name: "B+", value: 300 },
-    { name: "AB+", value: 200 },
-    { name: "A-", value: 100 },
-    { name: "O-", value: 100 },
-    { name: "B-", value: 50 },
-    { name: "AB-", value: 50 },
-  ];
+  const {
+    data: trendData = [],
+    isLoading: trendLoading,
+    isError: trendError,
+    refetch: refetchTrend,
+  } = useGetDonationsTrend();
+
+  const {
+    data: bloodTypeData = [],
+    isLoading: bloodTypeLoading,
+    isError: bloodTypeError,
+    refetch: refetchBloodType,
+  } = useGetBloodTypeDemand();
 
   return (
     <div className="space-y-8">
@@ -72,148 +119,183 @@ export default function AnalyticsPage() {
         </button>
       </div>
 
-      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-[#171921] p-6 rounded-xl border border-gray-100 dark:border-[#262833] shadow-sm">
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-            {t("total_donations_year", "Total Donations (Year)")}
-          </p>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-              124,500
-            </span>
-            <span className="text-xs font-semibold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/50 px-1.5 py-0.5 rounded flex items-center">
-              <ArrowUp size={12} className="mr-0.5" /> 12.5%
-            </span>
+        {kpisLoading ? (
+          <>
+            <KpiSkeleton />
+            <KpiSkeleton />
+            <KpiSkeleton />
+          </>
+        ) : kpisError ? (
+          <div className="md:col-span-3">
+            <ErrorPanel
+              message={t(
+                "failed_to_load_analytics",
+                "Failed to load analytics summary.",
+              )}
+              onRetry={() => refetchKpis()}
+              t={t}
+            />
           </div>
-        </div>
-        <div className="bg-white dark:bg-[#171921] p-6 rounded-xl border border-gray-100 dark:border-[#262833] shadow-sm">
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-            {t("new_donors_month", "New Donors (Month)")}
-          </p>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-              1,240
-            </span>
-            <span className="text-xs font-semibold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/50 px-1.5 py-0.5 rounded flex items-center">
-              <ArrowUp size={12} className="mr-0.5" /> 8.2%
-            </span>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-[#171921] p-6 rounded-xl border border-gray-100 dark:border-[#262833] shadow-sm">
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-            {t("case_resolution_rate", "Case Resolution Rate")}
-          </p>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-              94.2%
-            </span>
-            <span className="text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/50 px-1.5 py-0.5 rounded flex items-center">
-              <ArrowDown size={12} className="mr-0.5" /> 1.5%
-            </span>
-          </div>
-        </div>
+        ) : (
+          kpis.map((kpi) => (
+            <div
+              key={kpi.key}
+              className="bg-white dark:bg-[#171921] p-6 rounded-xl border border-gray-100 dark:border-[#262833] shadow-sm"
+            >
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                {t(kpi.titleKey || kpi.title, kpi.title)}
+              </p>
+              <div className="mt-2 flex items-baseline gap-2">
+                <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                  {kpi.formattedValue}
+                </span>
+                {kpi.formattedChange && (
+                  <span
+                    className={`text-xs font-semibold px-1.5 py-0.5 rounded flex items-center ${
+                      kpi.trend === "up"
+                        ? "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/50"
+                        : "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/50"
+                    }`}
+                  >
+                    {kpi.trend === "up" ? (
+                      <ArrowUp size={12} className="mr-0.5" />
+                    ) : (
+                      <ArrowDown size={12} className="mr-0.5" />
+                    )}
+                    {kpi.formattedChange}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Line Chart */}
         <div className="bg-white dark:bg-[#171921] p-6 rounded-xl border border-gray-100 dark:border-[#262833] shadow-sm">
           <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6">
-            {t("user_growth_vs_donations", "User Growth vs Donations")}
+            {t("donations_vs_requests", "Donations vs Requests")}
           </h3>
-          <div className="h-80 w-full" dir="ltr">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-              <LineChart data={data}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  vertical={false}
-                  stroke="#f3f4f6"
-                />
-                <XAxis
-                  dataKey="name"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "#9ca3af" }}
-                />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "#9ca3af" }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#fff",
-                    borderRadius: "8px",
-                    border: "1px solid #f3f4f6",
-                    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-                  }}
-                  labelStyle={{ color: "#000" }}
-                  formatter={(value, name) => [
-                    value,
-                    t(name === "donations" ? "donations" : "new_users", name),
-                  ]}
-                />
-
-                <Legend
-                  formatter={(value) =>
-                    t(value === "donations" ? "donations" : "new_users", value)
-                  }
-                />
-                <Line
-                  type="monotone"
-                  name="donations"
-                  dataKey="donations"
-                  stroke="#ef4444"
-                  strokeWidth={2}
-                  dot={{ r: 4, fill: "#ef4444" }}
-                  activeDot={{ r: 6 }}
-                />
-                <Line
-                  type="monotone"
-                  name="newUsers"
-                  dataKey="newUsers"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                  dot={{ r: 4, fill: "#3b82f6" }}
-                  activeDot={{ r: 6 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+          {trendLoading ? (
+            <ChartSkeleton />
+          ) : trendError ? (
+            <ErrorPanel
+              message={t("failed_to_load_chart", "Failed to load chart data.")}
+              onRetry={() => refetchTrend()}
+              t={t}
+            />
+          ) : trendData.length === 0 ? (
+            <p className="text-sm text-gray-500 dark:text-gray-400 py-16 text-center">
+              {t("no_chart_data", "No chart data available.")}
+            </p>
+          ) : (
+            <div className="h-80 w-full" dir="ltr">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                <LineChart data={trendData}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    vertical={false}
+                    stroke="#f3f4f6"
+                  />
+                  <XAxis
+                    dataKey="name"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#9ca3af" }}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#9ca3af" }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      borderRadius: "8px",
+                      border: "1px solid #f3f4f6",
+                      boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                    }}
+                    labelStyle={{ color: "#000" }}
+                    formatter={(value, name) => [
+                      value,
+                      t(name === "requests" ? "requests" : "donations", name),
+                    ]}
+                  />
+                  <Legend
+                    formatter={(value) =>
+                      t(value === "requests" ? "requests" : "donations", value)
+                    }
+                  />
+                  <Line
+                    type="monotone"
+                    name="donations"
+                    dataKey="donations"
+                    stroke="#ef4444"
+                    strokeWidth={2}
+                    dot={{ r: 4, fill: "#ef4444" }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line
+                    type="monotone"
+                    name="requests"
+                    dataKey="requests"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    dot={{ r: 4, fill: "#3b82f6" }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </div>
 
-        {/* Pie Chart */}
         <div className="bg-white dark:bg-[#171921] p-6 rounded-xl border border-gray-100 dark:border-[#262833] shadow-sm">
           <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6">
-            {t("blood_type_distribution", "Blood Type Distribution")}
+            {t("blood_type_demand", "Blood Type Demand")}
           </h3>
-          <div className="h-80 w-full" dir="ltr">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-              <PieChart>
-                <Pie
-                  data={bloodTypeData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
-                  fill="#8884d8"
-                  paddingAngle={5}
-                  dataKey="value"
-                  label={({ name, percent }) =>
-                    `${name} ${(percent * 100).toFixed(0)}%`
-                  }
-                >
-                  {bloodTypeData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+          {bloodTypeLoading ? (
+            <ChartSkeleton />
+          ) : bloodTypeError ? (
+            <ErrorPanel
+              message={t("failed_to_load_chart", "Failed to load chart data.")}
+              onRetry={() => refetchBloodType()}
+              t={t}
+            />
+          ) : bloodTypeData.length === 0 ? (
+            <p className="text-sm text-gray-500 dark:text-gray-400 py-16 text-center">
+              {t("no_chart_data", "No chart data available.")}
+            </p>
+          ) : (
+            <div className="h-80 w-full" dir="ltr">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                <PieChart>
+                  <Pie
+                    data={bloodTypeData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    paddingAngle={5}
+                    dataKey="value"
+                    label={({ name, percent }) =>
+                      `${name} ${(percent * 100).toFixed(0)}%`
+                    }
+                  >
+                    {bloodTypeData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${entry.key || index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </div>
       </div>
     </div>
