@@ -1,67 +1,45 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   getCases,
   getCaseById,
-  createCase,
-  updateCase,
-  deleteCase,
+  getCaseHospitals,
+  getBloodTypes,
 } from "@/services/cases.service";
 
 export const caseKeys = {
   all: ["cases"],
   list: (params) => ["cases", "list", params],
   detail: (id) => ["cases", "detail", id],
+  hospitals: () => ["cases", "hospitals"],
+  bloodTypes: () => ["cases", "blood-types"],
 };
 
-// ─── Queries ─────────────────────────────────────────────────────────────────
-
-export const useGetCases = (params = {}) => {
+export const useGetCases = (apiParams = {}, locale = "en", options = {}) => {
   return useQuery({
-    queryKey: caseKeys.list(params),
-    queryFn: () => getCases(params),
+    queryKey: caseKeys.list(apiParams),
+    queryFn: () => getCases(apiParams, locale),
+    ...options,
   });
 };
 
-export const useGetCaseById = (id) => {
+export const useGetCaseById = (id, locale = "en") => {
   return useQuery({
     queryKey: caseKeys.detail(id),
-    queryFn: () => getCaseById(id),
+    queryFn: () => getCaseById(id, locale),
     enabled: !!id,
   });
 };
 
-// ─── Mutations ───────────────────────────────────────────────────────────────
-
-export const useCreateCase = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: createCase,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: caseKeys.all });
-    },
+export const useGetCaseHospitals = () => {
+  return useQuery({
+    queryKey: caseKeys.hospitals(),
+    queryFn: getCaseHospitals,
   });
 };
 
-export const useUpdateCase = (id) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (payload) => updateCase(id, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: caseKeys.all });
-      queryClient.invalidateQueries({ queryKey: caseKeys.detail(id) });
-    },
-  });
-};
-
-export const useDeleteCase = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: deleteCase,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: caseKeys.all });
-    },
+export const useGetBloodTypes = () => {
+  return useQuery({
+    queryKey: caseKeys.bloodTypes(),
+    queryFn: getBloodTypes,
   });
 };
